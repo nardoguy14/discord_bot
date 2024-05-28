@@ -7,7 +7,22 @@ BOT_TOKEN = os.environ.get("DISCORD_BOT_TOKEN")
 DISCORD_HOST = "https://discord.com/api/v10"
 
 
-def create_secret_channel(guild_id, user1_id, user2_id):
+def add_to_secret_channel(guild_id, channel_id, user_id):
+    headers = {
+        'Authorization': f'Bot {BOT_TOKEN}',
+        'Content-Type': 'application/json'
+    }
+    payload = {
+        'permission_overwrites': [
+            {'id': guild_id, 'type': 0, 'deny': 1024},
+            {'id': user_id, 'type': 1, 'allow': 1024},
+        ]
+    }
+    response = requests.patch(f'https://discord.com/api/v10/channels/{channel_id}', headers=headers, json=payload)
+    print(response.json())
+    return
+
+def create_secret_channel(guild_id, channel_name, user1_id, user2_id):
     headers = {
         'Authorization': f'Bot {BOT_TOKEN}',
         'Content-Type': 'application/json'
@@ -15,7 +30,7 @@ def create_secret_channel(guild_id, user1_id, user2_id):
 
     # Create a new channel
     payload = {
-        'name': 'secret-channel-1',
+        'name': channel_name,
         'type': 0,
         'permission_overwrites': [
             {'id': guild_id, 'type': 0, 'deny': 1024},
@@ -26,7 +41,7 @@ def create_secret_channel(guild_id, user1_id, user2_id):
     response = requests.post(f'{DISCORD_HOST}/guilds/{guild_id}/channels', headers=headers, json=payload)
     channel = response.json()
     print(channel)
-    return 1
+    return channel
 
 
 def get_guild_users(guild_id, limit=1):
