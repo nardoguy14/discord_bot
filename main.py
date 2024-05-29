@@ -24,6 +24,8 @@ async def interactions(req: Request):
         name = body['data']['name']
         if name == 'create-league':
             return LeagueInteractions().create_league_interaction()
+        elif name == 'join-league':
+            return await LeagueInteractions().join_league(body)
 
     elif t== InteractionType.MODAL_SUBMIT:
         return await LeagueInteractions().process_create_league_modal_submit(body)

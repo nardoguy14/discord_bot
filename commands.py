@@ -9,23 +9,24 @@ headers = {
 }
 print(headers)
 
-data = [{
-    "name": "test",
-    "type": 1,
-    "description": "Testing Jimmy out what up",
-    "options": [
-        {
-            "name": "huh",
-            "description": "what you wanna tell me",
-            "type": 3,
-            "required": True,
-        }
-    ]
-},
+data = [
     {
         "name": "create-league",
         "type": 1,
         "description": "Starts process to create new league.",
+    },
+    {
+        "name": "join-league",
+        "type": 1,
+        "description": "Join an existing league.",
+        "options": [
+            {
+                "name": "league_name",
+                "description": "Whats the name of the league you wanna join?",
+                "type": 3,
+                "required": True,
+            }
+        ]
     }
 ]
 

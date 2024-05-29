@@ -87,3 +87,18 @@ class LeagueInteractions():
                 'content': f'League `{name}` of kind `{kind}` successfully made!~ {generate_random_emoji()}'
             }
         }
+
+    async def join_league(self, body):
+        user_id = body['member']['user']['id']
+        user_name = body['member']['user']['username']
+        print(f"userid {user_id} username {user_name}")
+        league_name = body['data']['options'][0]['value']
+        league_opt = await self.leagues_repository.get_league(league_name)
+        if len(league_opt) > 0:
+            await self.leagues_repository.join_league(user_id, league_opt[0].id)
+            return {
+                'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                'data': {
+                    'content': f'User `{user_name}` has joined league `{league_name}` successfully!~ {generate_random_emoji()}'
+                }
+            }

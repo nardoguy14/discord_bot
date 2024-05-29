@@ -16,3 +16,11 @@ class League(db.Model):
     created_at = db.Column(db.DateTime(), nullable=False, server_default=func.now())
     modified_at = db.Column(db.DateTime(), nullable=False, server_default=func.now())
 
+
+class LeagueUser(db.Model):
+    __tablename__ = 'league_users'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String, nullable=False)
+    league_id = db.Column(db.Integer, nullable=False)
+    created_at = db.Column(db.DateTime(), nullable=False, server_default=func.now())
+    modified_at = db.Column(db.DateTime(), nullable=False, server_default=func.now())
