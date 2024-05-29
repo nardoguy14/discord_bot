@@ -1,3 +1,5 @@
+import json
+
 import requests
 import os
 import pprint
@@ -5,6 +7,36 @@ import pprint
 BOT_TOKEN = os.environ.get("DISCORD_BOT_TOKEN")
 
 DISCORD_HOST = "https://discord.com/api/v10"
+
+
+def add_guild_role(guild_id, role_name):
+    endpoint = f"/guilds/{guild_id}/roles"
+    full_url = f"{DISCORD_HOST}{endpoint}"
+    headers = {
+        'Authorization': f'Bot {BOT_TOKEN}',
+        'Content-Type': 'application/json'
+    }
+    data = {
+        "name": role_name,
+        "permissions": "8",
+        "hoist": True
+    }
+    response = requests.post(full_url, headers=headers, json=data)
+    response_data = response.json()
+    pprint.pprint(response_data)
+    return response_data
+
+
+def add_guild_role_to_member(guild_id, member_id, role_id):
+    endpoint = f"/guilds/{guild_id}/members/{member_id}/roles/{role_id}"
+    full_url = f"{DISCORD_HOST}{endpoint}"
+    headers = {
+        'Authorization': f'Bot {BOT_TOKEN}'
+    }
+    response = requests.put(full_url, headers=headers)
+    response_data = response.json()
+    pprint.pprint(response_data)
+    return response_data
 
 
 def add_to_secret_channel(guild_id, channel_id, user_id):
@@ -21,6 +53,7 @@ def add_to_secret_channel(guild_id, channel_id, user_id):
     response = requests.patch(f'https://discord.com/api/v10/channels/{channel_id}', headers=headers, json=payload)
     print(response.json())
     return
+
 
 def create_secret_channel(guild_id, channel_name, user1_id, user2_id):
     headers = {
