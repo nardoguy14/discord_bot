@@ -8,6 +8,9 @@ from repositories.base_repository import postgres_base_repo
 from interactions.league_interactions import LeagueInteractions
 
 from middleware import DiscordMiddleware
+from services.user_service import UserService
+
+user_service = UserService()
 
 app = FastAPI()
 app.add_middleware(DiscordMiddleware)
@@ -30,7 +33,11 @@ async def interactions(req: Request):
     elif t== InteractionType.MODAL_SUBMIT:
         return await LeagueInteractions().process_create_league_modal_submit(body)
 
-
+@app.post("/api/roles")
+async def add_role(req: Request):
+    body = await req.body()
+    body = json.loads(body.decode('utf-8'))
+    return await user_service.add_user_role(body['guild_id'], body['role_name'], body['permission_name'])
 
 if __name__ == "__main__":
     run(app, host="0.0.0.0", port=8000)

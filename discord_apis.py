@@ -9,7 +9,7 @@ BOT_TOKEN = os.environ.get("DISCORD_BOT_TOKEN")
 DISCORD_HOST = "https://discord.com/api/v10"
 
 
-def add_guild_role(guild_id, role_name):
+def add_guild_role(guild_id: str, role_name: str, permissions: str):
     endpoint = f"/guilds/{guild_id}/roles"
     full_url = f"{DISCORD_HOST}{endpoint}"
     headers = {
@@ -18,13 +18,15 @@ def add_guild_role(guild_id, role_name):
     }
     data = {
         "name": role_name,
-        "permissions": "8",
+        "permissions": permissions,
         "hoist": True
     }
     response = requests.post(full_url, headers=headers, json=data)
     response_data = response.json()
     pprint.pprint(response_data)
-    return response_data
+    id = response_data['id']
+    name = response_data['name']
+    return (id, name)
 
 
 def add_guild_role_to_member(guild_id, member_id, role_id):
@@ -102,3 +104,31 @@ def search_guild_members(guild_id, potential_user):
                             headers=headers)
 
     return response.json()
+
+
+def get_guild_channels(guild_id):
+    headers = {
+        'Authorization': f'Bot {BOT_TOKEN}'
+    }
+
+    # Get the list of members in the guild
+    response = requests.get(f'{DISCORD_HOST}/guilds/{guild_id}/channels',
+                        headers=headers)
+    pprint.pprint(response.json())
+    return response.json()
+
+
+def modify_channel_permissions(channel_id, permissions):
+    headers = {
+        'Authorization': f'Bot {BOT_TOKEN}'
+    }
+    data = {
+        'permission_overwrites': permissions
+    }
+
+    response = requests.patch(f'{DISCORD_HOST}/channels/{channel_id}',
+                            json=data,
+                            headers=headers)
+    j = response.json()
+    pprint.pprint(j)
+    return j

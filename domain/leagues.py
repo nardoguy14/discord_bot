@@ -24,3 +24,11 @@ class LeagueUser(db.Model):
     league_id = db.Column(db.Integer, nullable=False)
     created_at = db.Column(db.DateTime(), nullable=False, server_default=func.now())
     modified_at = db.Column(db.DateTime(), nullable=False, server_default=func.now())
+
+class Role(db.Model):
+    __tablename__ = 'roles'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    role_id = db.Column(db.Integer, nullable=False)
+    created_at = db.Column(db.DateTime(), nullable=False, server_default=func.now())
+    modified_at = db.Column(db.DateTime(), nullable=False, server_default=func.now())
