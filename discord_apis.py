@@ -36,9 +36,7 @@ def add_guild_role_to_member(guild_id, member_id, role_id):
         'Authorization': f'Bot {BOT_TOKEN}'
     }
     response = requests.put(full_url, headers=headers)
-    response_data = response.json()
-    pprint.pprint(response_data)
-    return response_data
+    return response
 
 
 def add_to_secret_channel(guild_id, channel_id, user_id):
@@ -93,6 +91,19 @@ def get_guild_users(guild_id, limit=1):
     return members
 
 
+def get_guild_roles(guild_id, limit=1):
+    headers = {
+        'Authorization': f'Bot {BOT_TOKEN}'
+    }
+
+    # Get the list of members in the guild
+    response = requests.get(f'{DISCORD_HOST}/guilds/{guild_id}/roles',
+                            headers=headers)
+    roles = response.json()
+    print(response.headers)
+    return roles
+
+
 def search_guild_members(guild_id, potential_user):
     headers = {
         'Authorization': f'Bot {BOT_TOKEN}'
@@ -132,3 +143,17 @@ def modify_channel_permissions(channel_id, permissions):
     j = response.json()
     pprint.pprint(j)
     return j
+
+
+def create_role(id, type, allow):
+    type_num = None
+    if type == "user":
+        type_num = 1
+    elif type == "role":
+        type_num = 0
+    result = {'id': id, 'type': type_num, 'allow': 1024}
+    if allow:
+        result['allow'] = "962073160768"
+    else:
+        result['deny'] = "603498806210368"
+    return result

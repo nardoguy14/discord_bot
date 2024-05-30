@@ -27,6 +27,25 @@ data = [
                 "required": True,
             }
         ]
+    },
+    {
+        "name": "register",
+        "type": 1,
+        "description": "Join the discord.",
+        "options": [
+            {
+                "name": "gu_username",
+                "description": "Whats your Guardians Unchained username?",
+                "type": 3,
+                "required": True,
+            },
+            {
+                "name": "gu_id",
+                "description": "Whats your Guardians Unchained id?",
+                "type": 3,
+                "required": True,
+            }
+        ]
     }
 ]
 
