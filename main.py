@@ -4,10 +4,11 @@ from fastapi import FastAPI, Request
 from uvicorn import run
 from discord_interactions import InteractionType
 
+from domain.roles import Role
 from repositories.base_repository import postgres_base_repo
 from interactions.league_interactions import LeagueInteractions
 
-from middleware import DiscordMiddleware
+from middleware import DiscordMiddleware, check_role
 from services.user_service import UserService
 
 user_service = UserService()
@@ -18,6 +19,7 @@ postgres_base_repo.db.init_app(app)
 
 
 @app.post("/api/interactions")
+@check_role()
 async def interactions(req: Request):
     body = await req.body()
     body = json.loads(body.decode('utf-8'))

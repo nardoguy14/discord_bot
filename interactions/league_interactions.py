@@ -102,3 +102,10 @@ class LeagueInteractions():
                     'content': f'User `{user_name}` has joined league `{league_name}` successfully!~ {generate_random_emoji()}'
                 }
             }
+        else:
+            return {
+                'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                'data': {
+                    'content': f'Sorry this league: `{league_name}` doesnt exist!~ {generate_random_emoji()}'
+                }
+            }
