@@ -11,8 +11,8 @@ GUILD_ID = os.environ.get("DISCORD_GUILD_ID")
 WELCOME_CHANNEL = "welcome"
 GENERAL_CHANNEL = "general"
 
-basic_role = create_basic_user_roles(Role.HOMIE_USERS.name, GUILD_ID)['__values__']['role_id']
-admin_role = create_basic_user_roles(Role.HOMIE_ADMIN.name, GUILD_ID)['__values__']['role_id']
+basic_role_id = create_basic_user_roles(Role.HOMIE_USERS.name, GUILD_ID)['__values__']['role_id']
+admin_role_id = create_basic_user_roles(Role.HOMIE_ADMIN.name, GUILD_ID)['__values__']['role_id']
 everyone_role = get_role(GUILD_ID, "@everyone")
 
 welcome_channel_permissions = [
@@ -40,6 +40,6 @@ for channel in discord_channels:
     elif (channel['type'] == 0 or channel['type'] == 2) and (channel['name'] != "moderator-only" ):
         permissions = [
             {'id': everyone_role['id'], 'type': 0, 'deny': "1024"},
-            {'id': str(basic_role.id), 'type': 0, 'allow': "1024"}
+            {'id': basic_role_id, 'type': 0, 'allow': "1024"}
         ]
         modify_channel_permissions(channel['id'], permissions)

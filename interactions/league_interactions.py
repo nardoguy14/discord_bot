@@ -67,6 +67,29 @@ class LeagueInteractions():
                             "placeholder": "YYYY-MM-DD",
                             "required": True
                         }]
+                    },
+                    {
+                        "type": 1,
+                        "components": [{
+                            "type": 4,
+                            "custom_id": "max_plays_per_weeks",
+                            "label": "Max Plays Per Week",
+                            "style": 1,
+                            "min_length": 1,
+                            "max_length": 200,
+                            "placeholder": "Number Value",
+                            "required": True
+                        }]
+                    },
+                    {
+                        "type": 1,
+                        "components": [{
+                            "type": 4,
+                            "custom_id": "rules",
+                            "label": "Rules",
+                            "style": 2,
+                            "required": True
+                        }]
                     }
                 ]
             }
@@ -77,10 +100,13 @@ class LeagueInteractions():
         kind = body['data']['components'][1]['components'][0]['value']
         start_date = body['data']['components'][2]['components'][0]['value']
         end_date = body['data']['components'][3]['components'][0]['value']
+        max_plays_per_week = body['data']['components'][4]['components'][0]['value']
+        rules = body['data']['components'][5]['components'][0]['value']
 
         await self.leagues_repository.create_league(name, kind,
                                                datetime.strptime(start_date, '%Y-%m-%d'),
-                                               datetime.strptime(end_date, '%Y-%m-%d'))
+                                               datetime.strptime(end_date, '%Y-%m-%d'),
+                                                max_plays_per_week, rules)
         return {
             'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             'data': {
