@@ -2,7 +2,7 @@ import json
 
 from fastapi import FastAPI, Request
 from uvicorn import run
-from discord_interactions import InteractionType
+from discord_interactions import InteractionType, InteractionResponseType
 
 from domain.roles import Role
 from repositories.base_repository import postgres_base_repo

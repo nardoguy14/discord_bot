@@ -1,8 +1,6 @@
-import json
-
 import requests
 import os
-import pprint
+from pprint import pprint
 
 BOT_TOKEN = os.environ.get("DISCORD_BOT_TOKEN")
 
@@ -23,7 +21,7 @@ def add_guild_role(guild_id: str, role_name: str, permissions: str):
     }
     response = requests.post(full_url, headers=headers, json=data)
     response_data = response.json()
-    pprint.pprint(response_data)
+    pprint(response_data)
     id = response_data['id']
     name = response_data['name']
     return (id, name)
@@ -55,23 +53,34 @@ def add_to_secret_channel(guild_id, channel_id, user_id):
     return
 
 
-def create_secret_channel(guild_id, channel_name, user1_id, user2_id):
+def create_secret_channel(guild_id, role_id, channel_name, user_ids):
     headers = {
         'Authorization': f'Bot {BOT_TOKEN}',
         'Content-Type': 'application/json'
     }
-
+    permissions = [
+        {'id': role_id, 'type': 0, 'deny': "1024"}
+    ]
+    for user_id in user_ids:
+        permissions.append({'id': user_id, 'type': 1, 'allow': "1024"})
     # Create a new channel
     payload = {
         'name': channel_name,
         'type': 0,
-        'permission_overwrites': [
-            {'id': guild_id, 'type': 0, 'deny': 1024},
-            {'id': user1_id, 'type': 1, 'allow': 1024},
-            {'id': user2_id, 'type': 1, 'allow': 1024}
-        ]
+        'permission_overwrites': permissions
     }
     response = requests.post(f'{DISCORD_HOST}/guilds/{guild_id}/channels', headers=headers, json=payload)
+    channel = response.json()
+    print(channel)
+    return channel
+
+
+def delete_channel(channel_id):
+    headers = {
+        'Authorization': f'Bot {BOT_TOKEN}',
+        'Content-Type': 'application/json'
+    }
+    response = requests.delete(f'{DISCORD_HOST}/channels/{channel_id}', headers=headers)
     channel = response.json()
     print(channel)
     return channel
@@ -125,8 +134,45 @@ def get_guild_channels(guild_id):
     # Get the list of members in the guild
     response = requests.get(f'{DISCORD_HOST}/guilds/{guild_id}/channels',
                         headers=headers)
-    pprint.pprint(response.json())
+    pprint(response.json())
     return response.json()
+
+
+def create_channel(guild_id, channel_name, permissions):
+    headers = {
+        'Authorization': f'Bot {BOT_TOKEN}'
+    }
+    full_url = f"{DISCORD_HOST}/guilds/{guild_id}/channels"
+    data = {
+        "name": channel_name,
+        "type": 0,
+        "topic": "Text",
+        "permission_overwrites" : permissions
+    }
+    response = requests.post(full_url, headers=headers, json=data)
+    channel = response.json()
+    pprint(channel)
+    return channel
+
+
+def create_message(channel_id, message):
+    endpoint = f"/channels/{channel_id}/messages"
+    full_url = f"{DISCORD_HOST}{endpoint}"
+    data = {
+        "content": message
+    }
+    response = requests.post(full_url, headers={'Authorization': f'Bot {BOT_TOKEN}'}, json=data)
+    message = response.json()
+    pprint(message)
+    return message
+
+
+def pin_message(channel_id, message_id):
+    endpoint = f"/channels/{channel_id}/pins/{message_id}"
+    full_url = f"{DISCORD_HOST}{endpoint}"
+    response = requests.put(full_url, headers={'Authorization': f'Bot {BOT_TOKEN}'})
+    print(response.status_code)
+    return response
 
 
 def modify_channel_permissions(channel_id, permissions):
@@ -141,7 +187,7 @@ def modify_channel_permissions(channel_id, permissions):
                             json=data,
                             headers=headers)
     j = response.json()
-    pprint.pprint(j)
+    pprint(j)
     return j
 
 
@@ -155,5 +201,5 @@ def create_role(id, type, allow):
     if allow:
         result['allow'] = "962073160768"
     else:
-        result['deny'] = "603498806210368"
+        result['deny'] = "603619065329472"
     return result

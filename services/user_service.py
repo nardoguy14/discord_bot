@@ -1,7 +1,10 @@
 from domain.permissions import Permissions
-from discord_apis import add_guild_role, add_guild_role_to_member
+from discord_apis import add_guild_role, add_guild_role_to_member, get_guild_channels, delete_channel
 from domain.roles import Role
 from repositories.user_repository import UserRepository
+from utils import generate_random_emoji
+from discord_interactions import InteractionResponseType
+
 
 GUILD_ID = "830235184946872340"
 
@@ -25,3 +28,10 @@ class UserService():
         print(role)
         await self.user_repository.create_user(discord_id=discord_user_id, gu_user_name=gu_user_name, gu_user_id=gu_user_id)
         add_guild_role_to_member(GUILD_ID, discord_user_id, role.role_id)
+        channels = get_guild_channels(GUILD_ID)
+        for channel in channels:
+            print(channel['name'])
+            print(f"{body['member']['user']['username']}-register")
+            if channel['name'] == f"{body['member']['user']['username']}-register":
+                delete_channel(channel['id'])
+                break

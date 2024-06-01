@@ -70,7 +70,8 @@ def check_role():
             pprint.pprint(allowed_roles)
 
             has_allowed_role = set(role_names).intersection(set(allowed_roles))
-            if has_allowed_role or role_names == allowed_roles:
+            if has_allowed_role or role_names == allowed_roles or allowed_roles == []:
+                print("WEEEEE")
                 # If authenticated, call the original function
                 return await func(req, *args, **kwargs)
             else:
