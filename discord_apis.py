@@ -112,6 +112,12 @@ def get_guild_roles(guild_id, limit=1):
     print(response.headers)
     return roles
 
+def get_role(guild_id, role_name):
+    roles = get_guild_roles(guild_id)
+    for role in roles:
+        if role['name'] == role_name:
+            return role
+
 
 def search_guild_members(guild_id, potential_user):
     headers = {
