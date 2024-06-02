@@ -1,10 +1,18 @@
 import uuid
 from datetime import datetime
+import os
 
 from discord_interactions import InteractionResponseType, InteractionType
 
 from repositories.leagues_repository import LeaguesRepository
 from utils import generate_random_emoji
+from discord_apis import get_role, create_channel, get_guild_channel_by_name, create_message
+
+GUILD_ID = os.environ.get("DISCORD_GUILD_ID")
+EVERYONE_ROLE = get_role(GUILD_ID, "@everyone")
+HOMIE_USERS = get_role(GUILD_ID, "HOMIE_USERS")
+LEAGUE_CHANNEL = get_guild_channel_by_name(GUILD_ID, "Leagues")
+ANNOUNCEMENTS_CHANNEL = get_guild_channel_by_name(GUILD_ID, "announcements")
 
 class LeagueInteractions():
     leagues_repository = LeaguesRepository()
@@ -80,16 +88,6 @@ class LeagueInteractions():
                             "placeholder": "Number Value",
                             "required": True
                         }]
-                    },
-                    {
-                        "type": 1,
-                        "components": [{
-                            "type": 4,
-                            "custom_id": "rules",
-                            "label": "Rules",
-                            "style": 2,
-                            "required": True
-                        }]
                     }
                 ]
             }
@@ -101,12 +99,17 @@ class LeagueInteractions():
         start_date = body['data']['components'][2]['components'][0]['value']
         end_date = body['data']['components'][3]['components'][0]['value']
         max_plays_per_week = body['data']['components'][4]['components'][0]['value']
-        rules = body['data']['components'][5]['components'][0]['value']
-
+        permissions = [
+            {'id': EVERYONE_ROLE['id'], 'type': 0, 'deny': "1024"},
+            {'id': HOMIE_USERS['id'], 'type': 0, 'allow': "1024"},
+        ]
+        create_channel(GUILD_ID, f"{name}", permissions, parent_id=LEAGUE_CHANNEL['id'])
+        message = f"""New league `{name}` \nkind: `{kind}`\nstarts `{start_date}`\nends `{end_date}`\nmax plays of `{max_plays_per_week}` per week."""
+        create_message(ANNOUNCEMENTS_CHANNEL['id'], message)
         await self.leagues_repository.create_league(name, kind,
                                                datetime.strptime(start_date, '%Y-%m-%d'),
                                                datetime.strptime(end_date, '%Y-%m-%d'),
-                                                max_plays_per_week, rules)
+                                                int(max_plays_per_week))
         return {
             'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             'data': {
@@ -115,10 +118,17 @@ class LeagueInteractions():
         }
 
     async def join_league(self, body):
+        if body['channel']['parent_id'] != LEAGUE_CHANNEL['id']:
+            return {
+                'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                'data': {
+                    'content': f'Can only join leagues in league channels.'
+                }
+            }
         user_id = body['member']['user']['id']
         user_name = body['member']['user']['username']
         print(f"userid {user_id} username {user_name}")
-        league_name = body['data']['options'][0]['value']
+        league_name = body['channel']['name']
         league_opt = await self.leagues_repository.get_league(league_name)
         if len(league_opt) > 0:
             await self.leagues_repository.join_league(user_id, league_opt[0].id)

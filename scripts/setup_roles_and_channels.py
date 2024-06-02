@@ -10,6 +10,7 @@ from scripts.api_commands import create_basic_user_roles
 GUILD_ID = os.environ.get("DISCORD_GUILD_ID")
 WELCOME_CHANNEL = "welcome"
 GENERAL_CHANNEL = "general"
+ANNOUNCEMENTS_CHANNEL = "announcements"
 
 basic_role_id = create_basic_user_roles(Role.HOMIE_USERS.name, GUILD_ID)['__values__']['role_id']
 admin_role_id = create_basic_user_roles(Role.HOMIE_ADMIN.name, GUILD_ID)['__values__']['role_id']
@@ -19,6 +20,12 @@ welcome_channel_permissions = [
     {'id': everyone_role['id'], 'type': 0, 'allow': "1088", 'deny': "1084479698944"}
 ]
 channel = create_channel(GUILD_ID, WELCOME_CHANNEL, welcome_channel_permissions)
+announcement_channel = create_channel(GUILD_ID, ANNOUNCEMENTS_CHANNEL, welcome_channel_permissions)
+permissions = [
+    {'id': everyone_role['id'], 'type': 0, 'deny': "1024"},
+    {'id': basic_role_id, 'type': 0, 'allow': "1024"}
+]
+create_channel(GUILD_ID, f"Leagues", permissions, 4, category=True)
 content = """
 This is a welcome channel.
 

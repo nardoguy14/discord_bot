@@ -18,15 +18,7 @@ data = [
     {
         "name": "join-league",
         "type": 1,
-        "description": "Join an existing league.",
-        "options": [
-            {
-                "name": "league_name",
-                "description": "Whats the name of the league you wanna join?",
-                "type": 3,
-                "required": True,
-            }
-        ]
+        "description": "Join an existing league."
     },
     {
         "name": "register",

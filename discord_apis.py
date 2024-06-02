@@ -144,17 +144,42 @@ def get_guild_channels(guild_id):
     return response.json()
 
 
-def create_channel(guild_id, channel_name, permissions):
+def get_guild_channel_by_name(guild_id, channel_name):
+    channels = get_guild_channels(guild_id)
+    for channel in channels:
+        if channel['name'] == channel_name:
+            return channel
+
+
+def get_channel_messages(channel_id):
+    headers = {
+        'Authorization': f'Bot {BOT_TOKEN}'
+    }
+
+    # Get the list of members in the guild
+    response = requests.get(f'{DISCORD_HOST}/channels/{channel_id}/messages',
+                            headers=headers)
+    messages = response.json()
+    pprint(messages)
+    return messages
+
+
+def create_channel(guild_id, channel_name, permissions, guild_type=0, parent_id=None, category=False):
     headers = {
         'Authorization': f'Bot {BOT_TOKEN}'
     }
     full_url = f"{DISCORD_HOST}/guilds/{guild_id}/channels"
     data = {
         "name": channel_name,
-        "type": 0,
+        "type": guild_type,
         "topic": "Text",
-        "permission_overwrites" : permissions
+        "permission_overwrites": permissions,
     }
+    if parent_id:
+        data['parent_id'] = parent_id
+    if category:
+        del data['topic']
+
     response = requests.post(full_url, headers=headers, json=data)
     channel = response.json()
     pprint(channel)
