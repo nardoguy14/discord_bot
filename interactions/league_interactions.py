@@ -103,7 +103,13 @@ class LeagueInteractions():
             {'id': EVERYONE_ROLE['id'], 'type': 0, 'deny': "1024"},
             {'id': HOMIE_USERS['id'], 'type': 0, 'allow': "1024"},
         ]
-        create_channel(GUILD_ID, f"{name}", permissions, parent_id=LEAGUE_CHANNEL['id'])
+        category_channel = create_channel(GUILD_ID, f"{name}-League", permissions, guild_type=4, category=True)
+
+        create_channel(GUILD_ID, "Info", permissions, parent_id=category_channel['id'])
+        create_channel(GUILD_ID, "General Chat", permissions, parent_id=category_channel['id'])
+        create_channel(GUILD_ID, "Standings", permissions, parent_id=category_channel['id'])
+        create_channel(GUILD_ID, "Matchmaking", permissions, parent_id=category_channel['id'])
+
         message = f"""New league `{name}` \nkind: `{kind}`\nstarts `{start_date}`\nends `{end_date}`\nmax plays of `{max_plays_per_week}` per week."""
         create_message(ANNOUNCEMENTS_CHANNEL['id'], message)
         await self.leagues_repository.create_league(name, kind,
