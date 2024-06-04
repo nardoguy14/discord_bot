@@ -26,6 +26,7 @@ class LeagueUser(BaseModel):
     __tablename__ = 'league_users'
     user_id = db.Column(db.String, nullable=False)
     league_id = db.Column(db.Integer, nullable=False)
+    ranking = db.Column(db.Integer, nullable=True)
 
 
 class Role(BaseModel):

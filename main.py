@@ -2,13 +2,12 @@ import json
 
 from fastapi import FastAPI, Request
 from uvicorn import run
-from discord_interactions import InteractionType, InteractionResponseType
+from discord_interactions import InteractionType
 
-from domain.roles import Role
 from repositories.base_repository import postgres_base_repo
-from interactions.league_interactions import LeagueInteractions
+from util.interactions.league_interactions import LeagueInteractions
 
-from middleware import DiscordMiddleware, check_role
+from util.middleware import DiscordMiddleware, check_role
 from services.user_service import UserService
 
 user_service = UserService()

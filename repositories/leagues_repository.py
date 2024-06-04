@@ -10,5 +10,5 @@ class LeaguesRepository():
     async def get_league(self, league_name):
         return await League.query.where((League.name == league_name)).gino.all()
 
-    async def join_league(self, user_id, league_id):
-        return await LeagueUser.create(user_id=user_id, league_id=league_id)
+    async def join_league(self, user_id, league_id, ranking):
+        return await LeagueUser.create(user_id=user_id, league_id=league_id, ranking=ranking)

@@ -1,8 +1,7 @@
 from domain.permissions import Permissions
-from discord_apis import add_guild_role, add_guild_role_to_member, get_guild_channels, delete_channel
+from util.discord_apis import add_guild_role, add_guild_role_to_member, get_guild_channels, delete_channel
 from domain.roles import Role
 from repositories.user_repository import UserRepository
-from utils import generate_random_emoji
 from discord_interactions import InteractionResponseType
 
 
@@ -19,6 +18,8 @@ class UserService():
         result = await self.user_repository.add_role(role_id, role_name)
         return result
 
+    async def get_user_by_discord_id(self, discord_id):
+        return await self.user_repository.get_user(discord_id)
 
     async def register_user(self, body):
         discord_user_id = body['member']['user']['id']

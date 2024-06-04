@@ -144,6 +144,16 @@ def get_guild_channels(guild_id):
     return response.json()
 
 
+def get_guild_channel(guild_id, channel_id):
+    headers = {
+        'Authorization': f'Bot {BOT_TOKEN}'
+    }
+    response = requests.get(f'{DISCORD_HOST}/guilds/{guild_id}/channels/{channel_id}',
+                            headers=headers)
+    pprint(response.json())
+    return response.json()
+
+
 def get_guild_channel_by_name(guild_id, channel_name):
     channels = get_guild_channels(guild_id)
     for channel in channels:

@@ -2,21 +2,23 @@ import uuid
 from datetime import datetime
 import os
 
-from discord_interactions import InteractionResponseType, InteractionType
+from discord_interactions import InteractionResponseType
 
+from domain.leagues import User
 from repositories.leagues_repository import LeaguesRepository
+from services.user_service import UserService
+from util.gu_apis import get_rank
 from utils import generate_random_emoji
-from discord_apis import get_role, create_channel, get_guild_channel_by_name, create_message
+from util.discord_apis import get_role, create_channel, get_guild_channel_by_name, create_message, get_guild_channel
 
 GUILD_ID = os.environ.get("DISCORD_GUILD_ID")
 EVERYONE_ROLE = get_role(GUILD_ID, "@everyone")
 HOMIE_USERS = get_role(GUILD_ID, "HOMIE_USERS")
-LEAGUE_CHANNEL = get_guild_channel_by_name(GUILD_ID, "Leagues")
 ANNOUNCEMENTS_CHANNEL = get_guild_channel_by_name(GUILD_ID, "announcements")
 
 class LeagueInteractions():
     leagues_repository = LeaguesRepository()
-
+    user_service = UserService()
     def create_league_interaction(self):
         return {
             "type": InteractionResponseType.MODAL,
@@ -124,11 +126,12 @@ class LeagueInteractions():
         }
 
     async def join_league(self, body):
-        if body['channel']['parent_id'] != LEAGUE_CHANNEL['id']:
+        parent_channel = get_guild_channel(GUILD_ID, body['channel']['parent_id'])
+        if body['channel']['name'] != 'general-chat' and "league" not in parent_channel['name']:
             return {
                 'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                 'data': {
-                    'content': f'Can only join leagues in league channels.'
+                    'content': f'Can only join leagues in `general-chat` channels within a league category.'
                 }
             }
         user_id = body['member']['user']['id']
@@ -136,8 +139,15 @@ class LeagueInteractions():
         print(f"userid {user_id} username {user_name}")
         league_name = body['channel']['name']
         league_opt = await self.leagues_repository.get_league(league_name)
+        user: User = await self.user_service.get_user_by_discord_id(user_id)
         if len(league_opt) > 0:
-            await self.leagues_repository.join_league(user_id, league_opt[0].id)
+            ranking = get_rank(user.gu_user_id)
+            direct_challenge_ranking = None
+            for rank in ranking['records']:
+                if rank['game_mode'] == 6:
+                    direct_challenge_ranking = rank["rank_level"]
+                    break
+            await self.leagues_repository.join_league(user_id, league_opt[0].id, direct_challenge_ranking)
             return {
                 'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                 'data': {
