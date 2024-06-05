@@ -13,6 +13,44 @@ CREATE_LEAGUE = {
     "name": "create-league",
     "type": 1,
     "description": "Starts process to create new league.",
+    "options": [
+        {
+            "name": "league-name",
+            "description": "Name of the league.",
+            "type": 3,
+            "required": True,
+        },
+        {
+            "name": "kind",
+            "description": "Is it for pokemon, mtg, yugioh, gu, what?",
+            "type": 3,
+            "required": True,
+        },
+        {
+            "name": "start_date",
+            "description": "Whens it start format: YYYY-MM-DD?",
+            "type": 3,
+            "required": True,
+        },
+        {
+            "name": "end_date",
+            "description": "Whens it end format: YYYY-MM-DD?",
+            "type": 3,
+            "required": True,
+        },
+        {
+            "name": "max-plays-per-week",
+            "description": "How many games could a player play a week?",
+            "type": 3,
+            "required": True,
+        },
+        {
+            "name": "max-disparity",
+            "description": "Whats the max level difference between two players?",
+            "type": 3,
+            "required": True,
+        },
+    ]
 }
 
 JOIN_LEAGUE = {

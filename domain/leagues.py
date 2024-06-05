@@ -19,6 +19,7 @@ class League(BaseModel):
     start_date = db.Column(db.DateTime(), nullable=True)
     end_date = db.Column(db.DateTime(), nullable=True)
     max_plays_per_week = db.Column(db.Integer, nullable=True)
+    max_disparity = db.Column(db.DECIMAL, nullable=True)
     rules = db.Column(db.Text, nullable=True)
 
 
@@ -26,7 +27,7 @@ class LeagueUser(BaseModel):
     __tablename__ = 'league_users'
     user_id = db.Column(db.String, nullable=False)
     league_id = db.Column(db.Integer, nullable=False)
-    ranking = db.Column(db.Integer, nullable=True)
+    ranking = db.Column(db.DECIMAL, nullable=True)
 
 
 class Role(BaseModel):

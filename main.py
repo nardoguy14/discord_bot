@@ -1,11 +1,12 @@
 import json
+import os
 
 from fastapi import FastAPI, Request
 from uvicorn import run
 from discord_interactions import InteractionType
 
 from repositories.base_repository import postgres_base_repo
-from util.interactions.league_interactions import LeagueInteractions
+from services.league_service import LeagueService
 
 from util.middleware import DiscordMiddleware, check_role
 from services.user_service import UserService
@@ -15,7 +16,9 @@ user_service = UserService()
 app = FastAPI()
 app.add_middleware(DiscordMiddleware)
 postgres_base_repo.db.init_app(app)
+league_service = LeagueService()
 
+GUILD_ID = os.environ.get("DISCORD_GUILD_ID")
 
 @app.post("/api/interactions")
 @check_role()
@@ -27,14 +30,24 @@ async def interactions(req: Request):
     if t == InteractionType.APPLICATION_COMMAND:
         name = body['data']['name']
         if name == 'create-league':
-            return LeagueInteractions().create_league_interaction()
+            return await league_service.create_league_interaction(body)
         elif name == 'join-league':
-            return await LeagueInteractions().join_league(body)
+            return await league_service.join_league(body)
         elif name == 'register':
             return await user_service.register_user(body)
+        elif name == 'delete-league':
+            return await league_service.delete_league(GUILD_ID, body)
+        elif name == 'update-league-dates':
+            return await league_service.update_league_dates(body)
+        elif name == 'update-league-name':
+            return await league_service.update_league_name(body)
+        elif name == 'update-league-max-plays':
+            return await league_service.update_league_max_plays(body)
+        elif name == 'update-league-rank-disparity':
+            return await league_service.update_league_max_disparity(body)
 
-    elif t== InteractionType.MODAL_SUBMIT:
-        return await LeagueInteractions().process_create_league_modal_submit(body)
+    elif t == InteractionType.MODAL_SUBMIT:
+        return await league_service.process_create_league_modal_submit(body)
 
 @app.post("/api/roles")
 async def add_role(req: Request):

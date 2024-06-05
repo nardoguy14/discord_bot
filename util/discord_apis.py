@@ -6,7 +6,6 @@ BOT_TOKEN = os.environ.get("DISCORD_BOT_TOKEN")
 
 DISCORD_HOST = "https://discord.com/api/v10"
 
-
 def add_guild_role(guild_id: str, role_name: str, permissions: str):
     endpoint = f"/guilds/{guild_id}/roles"
     full_url = f"{DISCORD_HOST}{endpoint}"
@@ -148,7 +147,7 @@ def get_guild_channel(guild_id, channel_id):
     headers = {
         'Authorization': f'Bot {BOT_TOKEN}'
     }
-    response = requests.get(f'{DISCORD_HOST}/guilds/{guild_id}/channels/{channel_id}',
+    response = requests.get(f'{DISCORD_HOST}/channels/{channel_id}',
                             headers=headers)
     pprint(response.json())
     return response.json()

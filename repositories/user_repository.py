@@ -16,4 +16,4 @@ class UserRepository():
         return await User.create(discord_id=discord_id, gu_user_name=gu_user_name, gu_user_id=gu_user_id)
 
     async def get_user(self, discord_id):
-        return await User.query.where(User.discord_id == discord_id).gino.all()
+        return await User.query.where(User.discord_id == discord_id).gino.first()

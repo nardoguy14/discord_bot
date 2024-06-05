@@ -1,5 +1,7 @@
 import requests
 
+from domain.leagues import User
+
 BASE_HOST = "https://api.godsunchained.com/v0"
 
 
@@ -19,6 +21,9 @@ def get_modes():
     print(response.text)
     return response.json()
 
-get_rank("1314618")
 
-get_modes()
+def get_user_rank(user: User):
+    ranking = get_rank(user.gu_user_id)
+    for rank in ranking['records']:
+        if rank['game_mode'] == 13:
+            return rank["rating"]/100.0
