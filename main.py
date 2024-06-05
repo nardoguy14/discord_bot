@@ -1,7 +1,7 @@
 import json
 import os
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, BackgroundTasks
 from uvicorn import run
 from discord_interactions import InteractionType
 
@@ -22,7 +22,7 @@ GUILD_ID = os.environ.get("DISCORD_GUILD_ID")
 
 @app.post("/api/interactions")
 @check_role()
-async def interactions(req: Request):
+async def interactions(req: Request, backgorund_tasks: BackgroundTasks):
     body = await req.body()
     body = json.loads(body.decode('utf-8'))
     t = body['type']
@@ -30,13 +30,13 @@ async def interactions(req: Request):
     if t == InteractionType.APPLICATION_COMMAND:
         name = body['data']['name']
         if name == 'create-league':
-            return await league_service.create_league_interaction(body)
+            return await league_service.create_league_interaction(body, backgorund_tasks)
         elif name == 'join-league':
             return await league_service.join_league(body)
         elif name == 'register':
             return await user_service.register_user(body)
         elif name == 'delete-league':
-            return await league_service.delete_league(GUILD_ID, body)
+            return await league_service.delete_league(GUILD_ID, body, backgorund_tasks)
         elif name == 'update-league-dates':
             return await league_service.update_league_dates(body)
         elif name == 'update-league-name':
@@ -47,8 +47,7 @@ async def interactions(req: Request):
             return await league_service.update_league_max_disparity(body)
 
     elif t == InteractionType.MODAL_SUBMIT:
-        return await league_service.process_create_league_modal_submit(body)
-
+        pass
 @app.post("/api/roles")
 async def add_role(req: Request):
     body = await req.body()

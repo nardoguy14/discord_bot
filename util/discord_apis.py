@@ -3,7 +3,7 @@ import os
 from pprint import pprint
 
 BOT_TOKEN = os.environ.get("DISCORD_BOT_TOKEN")
-
+DISCORD_APPLICATION_ID = os.environ.get("DISCORD_APPLICATION_ID")
 DISCORD_HOST = "https://discord.com/api/v10"
 
 def add_guild_role(guild_id: str, role_name: str, permissions: str):
@@ -231,6 +231,18 @@ def modify_channel_permissions(channel_id, permissions):
     return j
 
 
+def modify_channel(channel_id, args):
+    headers = {
+        'Authorization': f'Bot {BOT_TOKEN}'
+    }
+    response = requests.patch(f'{DISCORD_HOST}/channels/{channel_id}',
+                              json=args,
+                              headers=headers)
+    j = response.json()
+    pprint(j)
+    return j
+
+
 def create_role(id, type, allow):
     type_num = None
     if type == "user":
@@ -243,3 +255,17 @@ def create_role(id, type, allow):
     else:
         result['deny'] = "603619065329472"
     return result
+
+
+def send_deferred_final_message(interaction_token, content):
+    headers = {
+        'Authorization': f'Bot {BOT_TOKEN}',
+        'Content-Type': 'application/json'
+    }
+    full_url = f'{DISCORD_HOST}/webhooks/{DISCORD_APPLICATION_ID}/{interaction_token}/messages/@original'
+    payload = {
+        'content': content
+    }
+    response = requests.patch(full_url, json=payload, headers=headers)
+    pprint(response.json())
+    response.raise_for_status()
