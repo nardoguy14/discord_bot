@@ -6,3 +6,5 @@ discord-interactions
 uvicorn
 psycopg2-binary
 gino_starlette
+celery
+redis

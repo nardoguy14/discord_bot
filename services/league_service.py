@@ -4,7 +4,7 @@ from datetime import datetime
 
 from discord_interactions import InteractionResponseType
 
-from domain.leagues import User
+from domain.leagues import User, League
 from repositories.leagues_repository import LeaguesRepository
 from services.user_service import UserService
 from util.discord_apis import delete_channel, send_deferred_final_message, modify_channel
@@ -70,17 +70,33 @@ class LeagueService():
         user_name = body['member']['user']['username']
         print(f"userid {user_id} username {user_name}")
         league_name = parent_channel['name'].split('-')[0]
-        league_opt = await self.leagues_repository.get_league(league_name)
+        league_opt: list[League] = await self.leagues_repository.get_league(league_name)
         user: User = await self.user_service.get_user_by_discord_id(user_id)
         if len(league_opt) > 0:
-            direct_challenge_ranking = get_user_rank(user)
-            await self.leagues_repository.join_league(user_id, league_opt[0].id, direct_challenge_ranking)
-            return {
-                'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-                'data': {
-                    'content': f'User `{user_name}` has joined league `{league_name}` successfully!~ {generate_random_emoji()}'
+            curr_date = datetime.now()
+            if league_opt[0].start_date < curr_date <= league_opt[0].end_date:
+                return {
+                    'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                    'data': {
+                        'content': f'League has already started. Cannot join. {generate_random_emoji()}'
+                    }
                 }
-            }
+            elif league_opt[0].end_date < curr_date:
+                return {
+                    'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                    'data': {
+                        'content': f'League has ended. Cannot join. {generate_random_emoji()}'
+                    }
+                }
+            else:
+                direct_challenge_ranking = get_user_rank(user)
+                await self.leagues_repository.join_league(user_id, league_opt[0].id, direct_challenge_ranking)
+                return {
+                    'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                    'data': {
+                        'content': f'User `{user_name}` has joined league `{league_name}` successfully!~ {generate_random_emoji()}'
+                    }
+                }
         else:
             return {
                 'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -119,17 +135,39 @@ class LeagueService():
 
     async def update_league_dates(self, body):
         league_name = body['data']['options'][0]['value']
-        start_date_str = body['data']['options'][1]['value']
-        start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
-        end_date_str = body['data']['options'][2]['value']
-        end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+
+        data = body['data']['options']
+        if len(data) == 1:
+            return {
+                'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                'data': {
+                    'content': f'`start-date` or `end-date` need to be provided. ~ {generate_random_emoji()}'
+                }
+            }
+        elif len(data) != 3:
+            if 'start-date' == data[1]['name']:
+                start_date_str = body['data']['options'][1]['value']
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+                end_date = None
+            elif 'end-date' == data[1]['name']:
+                end_date_str = body['data']['options'][2]['value']
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+                start_date = None
+        else:
+            start_date_str = body['data']['options'][1]['value']
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+
+            end_date_str = body['data']['options'][2]['value']
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+
         await self.leagues_repository.update_league(league_name=league_name,
                                               start_date=start_date,
                                               end_date=end_date)
+
         return {
             'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             'data': {
-                'content': f'League `{league_name}` dates updated to `{start_date_str}` - `{end_date_str}` ~ {generate_random_emoji()}'
+                'content': f'League `{league_name}` dates updated ~ {generate_random_emoji()}'
             }
         }
 
@@ -170,11 +208,3 @@ class LeagueService():
                 'content': f'League `{league_name}` max disparity updated to `{max_disparity}`. ~ {generate_random_emoji()}'
             }
         }
-
-
-{'app_permissions': '2251799813685247', 'application_id': '1244403754502062212', 'authorizing_integration_owners': {'0': '830235184946872340'},
- 'channel': {'flags': 0, 'guild_id': '830235184946872340', 'id': '1247607164684468224', 'last_message_id': '1247735880467091508', 'name': 'admin-actions', 'nsfw': False, 'parent_id': None, 'permissions': '2222085186637377', 'position': 7, 'rate_limit_per_user': 0, 'topic': 'Text', 'type': 0}, 'channel_id': '1247607164684468224', 'context': 0,
- 'data': {'id': '1245126215342227548', 'name': 'create-league', 'options': [{'name': 'league-name', 'type': 3, 'value': 'aghhhhh'}, {'name': 'kind', 'type': 3, 'value': 'dskfjsdkfs'}, {'name': 'start_date', 'type': 3, 'value': '2022-01-01'}, {'name': 'end_date', 'type': 3, 'value': '2023-01-01'}, {'name': 'max-plays-per-week', 'type': 3, 'value': '10'}, {'name': 'max-disparity', 'type': 3, 'value': '10'}], 'type': 1}, 'entitlement_sku_ids': [], 'entitlements': [], 'guild': {'features': ['COMMUNITY', 'NEWS'], 'id': '830235184946872340', 'locale': 'en-US'}, 'guild_id': '830235184946872340', 'guild_locale': 'en-US',
- 'id': '1247736316402204724', 'locale': 'en-US',
- 'member': {'avatar': None, 'communication_disabled_until': None, 'deaf': False, 'flags': 1, 'joined_at': '2024-05-31T07:42:42.182000+00:00', 'mute': False, 'nick': None, 'pending': False, 'permissions': '2222085186637377', 'premium_since': None, 'roles': ['1247607160917983253', '1247607159416426567'], 'unusual_dm_activity_until': None, 'user': {'avatar': None, 'avatar_decoration_data': None, 'clan': None, 'discriminator': '0', 'global_name': 'nardotester', 'id': '1245976169694625844', 'public_flags': 0, 'username': 'nardotester'}},
- 'token': 'aW50ZXJhY3Rpb246MTI0NzczNjMxNjQwMjIwNDcyNDp3MnlxU2VwWXRoOHpxSmhUN1JpaXJVSFA4SE9yRmxTYndBeUYxTjljRXF3aHR1R2V2S05kNmYySTFORHk4dDV2amR6VlBuWjlTaVZUb2hMNkZGb0Nab0xWZk5jNEZKckhPaFUxVURJYTFaTEU0cXZicWg4d0ljZXdpQnp6UWszaQ', 'type': 2, 'version': 1}
