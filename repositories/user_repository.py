@@ -1,5 +1,5 @@
-from domain.leagues import Role, User
-
+from domain.leagues import Role, User, LeagueUser
+from sqlalchemy import and_
 
 class UserRepository():
 
@@ -17,3 +17,6 @@ class UserRepository():
 
     async def get_user(self, discord_id):
         return await User.query.where(User.discord_id == discord_id).gino.first()
+
+    async def get_league_user(self, discord_id, league_id) -> LeagueUser:
+        return await LeagueUser.query.where(and_(LeagueUser.user_id == discord_id, LeagueUser.league_id == league_id)).gino.first()

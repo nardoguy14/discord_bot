@@ -1,4 +1,5 @@
 import os
+import pprint
 import uuid
 from datetime import datetime
 
@@ -12,6 +13,7 @@ from util.discord_apis import get_role, create_channel, get_guild_channel_by_nam
     get_guild_channels
 from util.gu_apis import get_user_rank
 from util.utils import generate_random_emoji
+from celery_worker import celery, add
 
 GUILD_ID = os.environ.get("DISCORD_GUILD_ID")
 EVERYONE_ROLE = get_role(GUILD_ID, "@everyone")
@@ -208,3 +210,27 @@ class LeagueService():
                 'content': f'League `{league_name}` max disparity updated to `{max_disparity}`. ~ {generate_random_emoji()}'
             }
         }
+
+    async def matchmake(self, body):
+        channel = body['channel']
+        if channel['name'] != 'matchmaking':
+            # cant do that in this channel
+            return {
+                'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                'data': {
+                    'content': f'Can only execute this in `matchmaking` channel. {generate_random_emoji()}'
+                }
+            }
+        parent_channel = get_guild_channel(GUILD_ID, channel['parent_id'])
+        league = (await self.leagues_repository.get_league(parent_channel['name'].split('-')[0]))[0]
+
+
+        player_id = body['member']['user']['id']
+        user = await self.user_service.get_user_by_discord_id(player_id)
+        league_user = await self.user_service.get_league_user(user.discord_id, league.id)
+
+        async with celery.setup():
+            # await matchweeeeeeeemake.delay(player_id, float(league_user.ranking), league.max_disparity, league.id, channel['parent_id'])
+            result = await add.delay(player_id, float(league_user.ranking), float(league.max_disparity), league.id, channel['parent_id'])
+            print(f"heres the answer {result}")
+        pprint.pprint(body)

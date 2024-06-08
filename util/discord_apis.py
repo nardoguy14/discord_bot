@@ -207,6 +207,18 @@ def create_message(channel_id, message):
     return message
 
 
+def edit_message(channel_id, message_id, message):
+    endpoint = f"/channels/{channel_id}/messages/{message_id}"
+    full_url = f"{DISCORD_HOST}{endpoint}"
+    data = {
+        "content": message
+    }
+    response = requests.patch(full_url, headers={'Authorization': f'Bot {BOT_TOKEN}'}, json=data)
+    message = response.json()
+    pprint(message)
+    return message
+
+
 def pin_message(channel_id, message_id):
     endpoint = f"/channels/{channel_id}/pins/{message_id}"
     full_url = f"{DISCORD_HOST}{endpoint}"

@@ -22,7 +22,9 @@ def upgrade() -> None:
     op.create_table(
         'matches',
         sa.Column('id', sa.Integer, primary_key=True),
+        sa.Column('league_id', sa.Integer, nullable=False),
         sa.Column('player_id', sa.VARCHAR(256), nullable=False),
+        sa.Column('discord_channel_id', sa.VARCHAR(456), nullable=True),
         sa.Column('created_at', sa.DateTime(), nullable=False, server_default=func.now()),
         sa.Column('modified_at', sa.DateTime(), nullable=False, server_default=func.now())
     )

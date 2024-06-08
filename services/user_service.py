@@ -1,3 +1,4 @@
+from domain.leagues import LeagueUser
 from domain.permissions import Permissions
 from util.discord_apis import add_guild_role, add_guild_role_to_member, get_guild_channels, delete_channel
 from domain.roles import Role
@@ -21,12 +22,15 @@ class UserService():
     async def get_user_by_discord_id(self, discord_id):
         return await self.user_repository.get_user(discord_id)
 
+    async def get_league_user(self, discord_id, league_id) -> LeagueUser:
+        return await self.user_repository.get_league_user(discord_id, league_id)
+
     async def register_user(self, body):
         discord_user_id = body['member']['user']['id']
         gu_user_name = body['data']['options'][0]['value']
         gu_user_id = body['data']['options'][1]['value']
         user_opt: list = await self.user_repository.get_user(discord_user_id)
-        if len(user_opt) > 0:
+        if user_opt:
             return {
                 'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                 'data': {

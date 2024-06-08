@@ -2,9 +2,10 @@ alembic
 discord
 requests
 fastapi
+flower
 discord-interactions
 uvicorn
 psycopg2-binary
 gino_starlette
-celery
+aio-celery[redis]
 redis

@@ -45,6 +45,8 @@ async def interactions(req: Request, backgorund_tasks: BackgroundTasks):
             return await league_service.update_league_max_plays(body)
         elif name == 'update-league-rank-disparity':
             return await league_service.update_league_max_disparity(body)
+        elif name == 'match-make':
+            return await league_service.matchmake(body)
 
     elif t == InteractionType.MODAL_SUBMIT:
         pass
