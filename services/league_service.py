@@ -212,25 +212,27 @@ class LeagueService():
         }
 
     async def matchmake(self, body):
-        channel = body['channel']
-        if channel['name'] != 'matchmaking':
-            # cant do that in this channel
-            return {
-                'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-                'data': {
-                    'content': f'Can only execute this in `matchmaking` channel. {generate_random_emoji()}'
-                }
-            }
-        parent_channel = get_guild_channel(GUILD_ID, channel['parent_id'])
-        league = (await self.leagues_repository.get_league(parent_channel['name'].split('-')[0]))[0]
-
-
-        player_id = body['member']['user']['id']
-        user = await self.user_service.get_user_by_discord_id(player_id)
-        league_user = await self.user_service.get_league_user(user.discord_id, league.id)
-
         async with celery.setup():
+            channel = body['channel']
+            if channel['name'] != 'matchmaking':
+                # cant do that in this channel
+                return {
+                    'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                    'data': {
+                        'content': f'Can only execute this in `matchmaking` channel. {generate_random_emoji()}'
+                    }
+                }
+            parent_channel = get_guild_channel(GUILD_ID, channel['parent_id'])
+            league = (await self.leagues_repository.get_league(parent_channel['name'].split('-')[0]))[0]
+
+
+            player_id = body['member']['user']['id']
+            user = await self.user_service.get_user_by_discord_id(player_id)
+            league_user = await self.user_service.get_league_user(user.discord_id, league.id)
+
+
             # await matchweeeeeeeemake.delay(player_id, float(league_user.ranking), league.max_disparity, league.id, channel['parent_id'])
             result = await add.delay(player_id, float(league_user.ranking), float(league.max_disparity), league.id, channel['parent_id'])
+            print("did i get here or not")
             print(f"heres the answer {result}")
-        pprint.pprint(body)
+            # pprint.pprint(body)

@@ -3,10 +3,11 @@ from aio_celery import Celery
 import asyncio
 import uuid
 
-from domain.leagues import LeagueUser
+from domain.leagues import LeagueUser, User
 from domain.matches import Match
 from repositories.base_repository import postgres_base_repo
 from repositories.matches_repository import MatchesRepository
+from services.user_service import UserService
 from util.discord_apis import (create_channel, get_role, delete_channel, edit_message,
                                modify_channel_permissions, get_guild_channel, create_message)
 from repositories.leagues_repository import LeaguesRepository
@@ -17,7 +18,7 @@ celery = Celery()
 
 celery.conf.update(
     result_backend="redis://localhost:6379/0",
-    broker_url="amqp://guest:guest@localhost/"
+    broker_url="amqp://guest:guest@localhost:5672/"
 )
 
 GUILD_ID = os.environ.get("DISCORD_GUILD_ID")
@@ -26,9 +27,10 @@ loop = asyncio.get_event_loop()
 loop.run_until_complete(postgres_base_repo.connect())
 matches_repository = MatchesRepository()
 leagues_repository = LeaguesRepository()
+users_service = UserService()
 
 
-@celery.task(name="add-two-numbe3rs")
+@celery.task(name="add-two-numbers")
 async def add(player_id, ranking, disparity, league_id, parent_discord_channel_id):
     uu = uuid.uuid4().hex
     countdown = 60 * 4 # minutes x seconds
@@ -55,18 +57,28 @@ async def add(player_id, ranking, disparity, league_id, parent_discord_channel_i
             created_match = True
         elif created_match and countdown % 5 == 0:
             print("editing message")
-            create_message(matchmaking_channel['id'], f"Trying to find a match. Remaining time (seconds) to find a match: {countdown}")
             existing_match: Match = await matches_repository.get_match(crud_match.id)
             if existing_match.player_id_2:
                 print('the match has been updated')
                 return
+            create_message(matchmaking_channel['id'], f"Trying to find a match. Remaining time (seconds) to find a match: {countdown}")
 
         elif not created_match and match:
             existing_channel = get_guild_channel(GUILD_ID, match.discord_channel_id)
             existing_permissions = existing_channel['permission_overwrites']
             existing_permissions.append({'id': player_id, 'type': 1, 'allow': "1024"})
             modify_channel_permissions(existing_channel['id'], existing_permissions)
-            create_message(existing_channel['id'], "Players are matched. Type `/ready-up` to begin the match.")
+
+            league_player_1: LeagueUser = await leagues_repository.get_league_user(match.league_id, match.player_id_1)
+            league_player_2: LeagueUser = await leagues_repository.get_league_user(match.league_id, match.player_id_2)
+
+            player_1: User = await users_service.get_user_by_discord_id(match.player_id_1)
+            player_2: User = await users_service.get_user_by_discord_id(match.player_id_2)
+
+            create_message(existing_channel['id'], "Players are matched. \n"
+                                                   f"Player `{player_1.gu_user_name}` has elo score of `{round(league_player_1.ranking, 3)}`\n"
+                                                   f"Player `{player_2.gu_user_name}` has elo score of `{round(league_player_2.ranking, 3)}`\n"
+                                                   "Type `/ready-up` to begin the match.")
             return
 
         print(f"======countdown {uu}")

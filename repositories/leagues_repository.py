@@ -16,6 +16,10 @@ class LeaguesRepository():
     async def get_league_users(self, league_id):
         return await LeagueUser.query.where(LeagueUser.league_id == league_id).gino.all()
 
+    async def get_league_user(self, league_id, user_id):
+        return await LeagueUser.query.where(and_(LeagueUser.league_id == league_id,
+                                                 LeagueUser.user_id == user_id)).gino.first()
+
     async def get_league_users_within_rank(self, ranking, disparity):
         return await LeagueUser.query.where(func.abs(LeagueUser.ranking - ranking) < disparity,).gino.all()
 
