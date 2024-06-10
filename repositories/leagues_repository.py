@@ -1,5 +1,5 @@
 from domain.leagues import League, LeagueUser
-
+from sqlalchemy import select, func, literal_column, and_
 
 class LeaguesRepository():
 
@@ -15,6 +15,9 @@ class LeaguesRepository():
 
     async def get_league_users(self, league_id):
         return await LeagueUser.query.where(LeagueUser.league_id == league_id).gino.all()
+
+    async def get_league_users_within_rank(self, ranking, disparity):
+        return await LeagueUser.query.where(func.abs(LeagueUser.ranking - ranking) < disparity,).gino.all()
 
     async def update_league(self, league_name, start_date=None, end_date=None,
                             new_name=None, max_plays=None, max_disparity=None):

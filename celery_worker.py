@@ -1,10 +1,15 @@
 import pprint
 from aio_celery import Celery
 import asyncio
+import uuid
+
+from domain.leagues import LeagueUser
+from domain.matches import Match
 from repositories.base_repository import postgres_base_repo
 from repositories.matches_repository import MatchesRepository
 from util.discord_apis import (create_channel, get_role, delete_channel, edit_message,
                                modify_channel_permissions, get_guild_channel, create_message)
+from repositories.leagues_repository import LeaguesRepository
 import os
 
 
@@ -17,117 +22,67 @@ celery.conf.update(
 
 GUILD_ID = os.environ.get("DISCORD_GUILD_ID")
 everyone_role = get_role(GUILD_ID, "@everyone")
-
-
-# @celery.task(name='match-make-dis-shit')
-# async def matchweeeeeeeemake(player_id, ranking, disparity, league_id, parent_discord_channel_id):
-#     countdown = 60 * 4 # minutes x seconds
-#     print("in hereeeeeeeeee")
-    # await postgres_base_repo.connect()
-    # matchmaking_channel = None
-    # channel_message = None
-    # created_match = False
-    # match = None
-    # while countdown > 0:
-    #     print(f"======countdown: {countdown}")
-    #     x = MatchesRepository()
-    #     matches = await x.find_matches(ranking=ranking, disparity=disparity, league_id=league_id)
-    #     if len(matches) == 0:
-    #         print("no matches found : (")
-    #         permissions = [
-    #             {'id': everyone_role['id'], 'type': 0,'deny': "1024"},
-    #             {'id': player_id, 'type': 1, 'allow': "1024"}
-    #         ]
-    #         import uuid
-    #         matchmaking_channel = create_channel(GUILD_ID, f"matchmaking-{uuid.uuid4().hex}", permissions,
-    #                                              parent_id=parent_discord_channel_id)
-    #         crud_match = await x.create_match(league_id, player_id, matchmaking_channel['id'])
-    #         channel_message = create_message(matchmaking_channel['id'], f"Trying to find a match. Remaining time (seconds) to find a match: {countdown}")
-    #         created_match = True
-    #     elif created_match and countdown % 5 == 0:
-    #         print("editing message")
-    #         create_message(matchmaking_channel['id'], f"Trying to find a match. Remaining time (seconds) to find a match: {countdown}")
-    #         # edit_message(matchmaking_channel['id'], channel_message['id'], f"Trying to find a match. Remaining time (seconds) to find a match: {countdown}")
-    #     else:
-    #         print("elseeeeeee")
-    #         for match in matches:
-    #             pprint.pprint(match)
-    #             if match[0] != player_id:
-    #                 existing_channel = get_guild_channel(GUILD_ID, match[1])
-    #                 pprint.pprint(existing_channel)
-    #                 existing_permissions = existing_channel['permission_overwrites']
-    #                 existing_permissions.append({'id': player_id, 'type': 1, 'allow': "1024"})
-    #                 modify_channel_permissions(existing_channel['id'], existing_permissions)
-    #                 await x.create_match(league_id, player_id, match[1])
-    #                 create_message(existing_channel['id'], "Players are matched. Type `/ready-up` to begin the match.")
-    #                 return
-    #
-    #
-    #     print(matches)
-    #     print(f"======countdown")
-    #     await asyncio.sleep(1)
-    #     countdown -= 1
-    # print("No match found.")
-    # if matchmaking_channel:
-    #     delete_channel(matchmaking_channel['id'])
-    # if crud_match:
-    #     print(crud_match)
-    #     await x.delete_match(crud_match)
+loop = asyncio.get_event_loop()
+loop.run_until_complete(postgres_base_repo.connect())
+matches_repository = MatchesRepository()
+leagues_repository = LeaguesRepository()
 
 
 @celery.task(name="add-two-numbe3rs")
 async def add(player_id, ranking, disparity, league_id, parent_discord_channel_id):
-    print("IM IN HERE!!!!")
-    # await asyncio.sleep(5)
+    uu = uuid.uuid4().hex
     countdown = 60 * 4 # minutes x seconds
-    print("in hereeeeeeeeee")
-    await postgres_base_repo.connect()
     matchmaking_channel = None
     channel_message = None
     created_match = False
     match = None
     while countdown > 0:
-        print(f"======countdown: {countdown}")
-        x = MatchesRepository()
-        matches = await x.find_matches(ranking=ranking, disparity=disparity, league_id=league_id)
-        if len(matches) == 0:
+        print(f"======countdown: {countdown} {uu}")
+        user_ids = await  get_users_who_match(ranking, disparity, player_id)
+        if not created_match:
+            match = await matches_repository.find_matches(league_id=league_id, player_id_2=player_id, user_ids=user_ids)
+        if not match and not created_match:
             print("no matches found : (")
             permissions = [
                 {'id': everyone_role['id'], 'type': 0,'deny': "1024"},
                 {'id': player_id, 'type': 1, 'allow': "1024"}
             ]
-            import uuid
+
             matchmaking_channel = create_channel(GUILD_ID, f"matchmaking-{uuid.uuid4().hex}", permissions,
                                                  parent_id=parent_discord_channel_id)
-            crud_match = await x.create_match(league_id, player_id, matchmaking_channel['id'])
-            channel_message = create_message(matchmaking_channel['id'], f"Trying to find a match. Remaining time (seconds) to find a match: {countdown}")
+            crud_match = await matches_repository.create_match(league_id, player_id, matchmaking_channel['id'])
+            create_message(matchmaking_channel['id'], f"Trying to find a match. Remaining time (seconds) to find a match: {countdown}")
             created_match = True
         elif created_match and countdown % 5 == 0:
             print("editing message")
             create_message(matchmaking_channel['id'], f"Trying to find a match. Remaining time (seconds) to find a match: {countdown}")
-            # edit_message(matchmaking_channel['id'], channel_message['id'], f"Trying to find a match. Remaining time (seconds) to find a match: {countdown}")
-        else:
-            print("elseeeeeee")
-            for match in matches:
-                pprint.pprint(match)
-                if match[0] != player_id:
-                    existing_channel = get_guild_channel(GUILD_ID, match[1])
-                    pprint.pprint(existing_channel)
-                    existing_permissions = existing_channel['permission_overwrites']
-                    existing_permissions.append({'id': player_id, 'type': 1, 'allow': "1024"})
-                    modify_channel_permissions(existing_channel['id'], existing_permissions)
-                    await x.create_match(league_id, player_id, match[1])
-                    create_message(existing_channel['id'], "Players are matched. Type `/ready-up` to begin the match.")
-                    return
+            existing_match: Match = await matches_repository.get_match(crud_match.id)
+            if existing_match.player_id_2:
+                print('the match has been updated')
+                return
 
-        print(matches)
-        print(f"======countdown")
+        elif not created_match and match:
+            existing_channel = get_guild_channel(GUILD_ID, match.discord_channel_id)
+            existing_permissions = existing_channel['permission_overwrites']
+            existing_permissions.append({'id': player_id, 'type': 1, 'allow': "1024"})
+            modify_channel_permissions(existing_channel['id'], existing_permissions)
+            create_message(existing_channel['id'], "Players are matched. Type `/ready-up` to begin the match.")
+            return
+
+        print(f"======countdown {uu}")
         await asyncio.sleep(1)
         countdown -= 1
     print("No match found.")
     if matchmaking_channel:
         delete_channel(matchmaking_channel['id'])
     if crud_match:
-        print(crud_match)
-        await x.delete_match(crud_match)
+        await matches_repository.delete_match(crud_match)
     return
+
+async def get_users_who_match(ranking, disparity, player_id):
+    users: list[LeagueUser] = await leagues_repository.get_league_users_within_rank(ranking=ranking, disparity=disparity)
+    user_ids = []
+    for user in users:
+        if user.user_id != player_id:
+            user_ids.append(user.user_id)
+    return user_ids
