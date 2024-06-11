@@ -31,6 +31,16 @@ class MatchesRepository():
     async def get_match(self, match_id):
         return await Match.query.where(Match.id == match_id).gino.first()
 
+    async def get_match_by_discord_id(self, discord_channel_id):
+        return await Match.query.where(Match.discord_channel_id == discord_channel_id).gino.first()
+
     async def delete_match(self, match: Match):
         match = await self.get_match(match.id)
         return await match.delete()
+
+    async def set_ready(self, match: Match, player_id, status=True):
+        current_match = await self.get_match(match.id)
+        if current_match.player_id_1 == player_id:
+            await current_match.update(ready_up_1=status).apply()
+        else:
+            await current_match.update(ready_up_2=status).apply()

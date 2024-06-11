@@ -1,5 +1,7 @@
 import json
 import os
+import pprint
+
 from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse, PlainTextResponse
 from discord_interactions import verify_key_decorator, verify_key, InteractionType, InteractionResponseType
@@ -26,7 +28,7 @@ class DiscordMiddleware(BaseHTTPMiddleware):
         timestamp = req.headers.get('X-Signature-Timestamp')
         skip_check = req.headers.get('X-Skip-Check', False)
         print(f"sig: {signature} timestamp: {timestamp}")
-        print(f"body: {body}")
+        pprint.pprint(body)
 
         if not bool(int(skip_check)):
 
@@ -42,8 +44,6 @@ class DiscordMiddleware(BaseHTTPMiddleware):
                 return resp
 
         response = await call_next(req)
-
-
         return response
 
 
@@ -61,11 +61,16 @@ def check_role():
                 role_names.append(role.name)
             import pprint
             pprint.pprint(role_names)
+            pprint.pprint(body)
 
             if is_modal_submit(body) and "create_league" in body['data']['custom_id']:
                 command_name = "create-league"
-            else:
+            elif is_command_type(body):
                 command_name = body['data']['name']
+            elif is_component_response(body):
+                command_name = body['data']['custom_id']
+            else:
+                command_name = None
             allowed_roles = get_required_role(command_name)
             pprint.pprint(allowed_roles)
 
@@ -92,9 +97,17 @@ def get_required_role(command_name):
         "register": [],
         "create-league": [Role.HOMIE_ADMIN.name],
         "join-league": [Role.HOMIE_USERS.name],
+        "READY_UP": [Role.HOMIE_USERS.name],
+        "DONT_READY_UP": [Role.HOMIE_USERS.name],
     }
     return commands.get(command_name, [])
 
 
 def is_modal_submit(body):
     return body['type'] == 5
+
+def is_command_type(body):
+    return body['type'] == InteractionType.APPLICATION_COMMAND
+
+def is_component_response(body):
+    return body['type'] == InteractionType.MESSAGE_COMPONENT

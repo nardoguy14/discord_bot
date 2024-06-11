@@ -7,6 +7,7 @@ from domain.leagues import LeagueUser, User
 from domain.matches import Match
 from repositories.base_repository import postgres_base_repo
 from repositories.matches_repository import MatchesRepository
+from services.matches_service import MatchesService
 from services.user_service import UserService
 from util.discord_apis import (create_channel, get_role, delete_channel, edit_message,
                                modify_channel_permissions, get_guild_channel, create_message)
@@ -26,6 +27,7 @@ everyone_role = get_role(GUILD_ID, "@everyone")
 loop = asyncio.get_event_loop()
 loop.run_until_complete(postgres_base_repo.connect())
 matches_repository = MatchesRepository()
+matches_service = MatchesService()
 leagues_repository = LeaguesRepository()
 users_service = UserService()
 
@@ -79,6 +81,7 @@ async def add(player_id, ranking, disparity, league_id, parent_discord_channel_i
                                                    f"Player `{player_1.gu_user_name}` has elo score of `{round(league_player_1.ranking, 3)}`\n"
                                                    f"Player `{player_2.gu_user_name}` has elo score of `{round(league_player_2.ranking, 3)}`\n"
                                                    "Type `/ready-up` to begin the match.")
+            await ready_up.apply_async(args=[match.league_id, match.discord_channel_id])
             return
 
         print(f"======countdown {uu}")
@@ -90,6 +93,32 @@ async def add(player_id, ranking, disparity, league_id, parent_discord_channel_i
     if crud_match:
         await matches_repository.delete_match(crud_match)
     return
+
+
+@celery.task(name="wait-for-ready-up", ignore_result=True)
+async def ready_up(league_id, discord_channel_id):
+    countdown = 60 * 60
+    def message_str(countdown): return f"Waiting for players to ready up. Seconds remaining: {countdown}"
+    message = create_message(discord_channel_id, message_str(countdown))
+    match = None
+    while countdown > 0:
+        if countdown % 10 == 0:
+            match = await matches_repository.get_match_by_discord_id(discord_channel_id)
+            if match.ready_up_1 and match.ready_up_2:
+                join_code = uuid.uuid4().hex[:10]
+                create_message(discord_channel_id, f"You can now join the game with code: `{join_code}`")
+                return
+            else:
+                if countdown % 10 == 0:
+                    edit_message(discord_channel_id, message['id'], message_str(countdown))
+        await asyncio.sleep(1)
+        countdown -= 1
+    create_message(discord_channel_id, "Users didnt ready up in time. Please type `ready-up` to try again.")
+    await matches_repository.set_ready(match, match.player_id_2, False)
+    await matches_repository.set_ready(match, match.player_id_1, False)
+    return
+
+
 
 async def get_users_who_match(ranking, disparity, player_id):
     users: list[LeagueUser] = await leagues_repository.get_league_users_within_rank(ranking=ranking, disparity=disparity)

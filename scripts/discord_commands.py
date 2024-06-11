@@ -185,6 +185,12 @@ MATCHMAKE = {
     "description": "Starts matchmaking process. To be used within `matchmaking` channel of a league.",
 }
 
+READY_UP = {
+    "name": "ready-up",
+    "type": 1,
+    "description": "Ready for a match and prompts other user to ready up too.",
+}
+
 data = [
     CREATE_LEAGUE,
     JOIN_LEAGUE,
@@ -194,7 +200,8 @@ data = [
     UPDATE_LEAGUE_NAME,
     UPDATE_LEAGUE_MAX_PLAYS,
     UPDATE_LEAGUE_MAX_DISPARITY,
-    MATCHMAKE
+    MATCHMAKE,
+    READY_UP
 ]
 
 

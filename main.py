@@ -7,6 +7,7 @@ from discord_interactions import InteractionType
 
 from repositories.base_repository import postgres_base_repo
 from services.league_service import LeagueService
+from services.matches_service import MatchesService
 
 from util.middleware import DiscordMiddleware, check_role
 from services.user_service import UserService
@@ -17,6 +18,7 @@ app = FastAPI()
 app.add_middleware(DiscordMiddleware)
 postgres_base_repo.db.init_app(app)
 league_service = LeagueService()
+matches_service = MatchesService()
 
 GUILD_ID = os.environ.get("DISCORD_GUILD_ID")
 
@@ -47,9 +49,14 @@ async def interactions(req: Request, backgorund_tasks: BackgroundTasks):
             return await league_service.update_league_max_disparity(body)
         elif name == 'match-make':
             return await league_service.matchmake(body)
+        elif name == 'ready-up':
+            channel_id = body['channel']['id']
+            player_id = body['member']['user']['id']
+            return await matches_service.set_ready_up_status(channel_id, player_id)
 
-    elif t == InteractionType.MODAL_SUBMIT:
-        pass
+    elif t == InteractionType.MESSAGE_COMPONENT:
+        return await matches_service.react_to_ready_up(body)
+
 @app.post("/api/roles")
 async def add_role(req: Request):
     body = await req.body()
