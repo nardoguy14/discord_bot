@@ -1,5 +1,5 @@
 import requests
-
+from pprint import pprint
 from domain.leagues import User
 
 BASE_HOST = "https://api.godsunchained.com/v0"
@@ -27,3 +27,15 @@ def get_user_rank(user: User):
     for rank in ranking['records']:
         if rank['game_mode'] == 13:
             return rank["rating"]/100.0
+
+
+def get_matches(user_id):
+    params = {
+        'player_won': user_id,
+        'order': 'desc',
+        'game_mode': 13
+    }
+    endpoint = "/match"
+    response = requests.get(BASE_HOST + endpoint, params=params)
+    pprint(response.json())
+    return response.json()

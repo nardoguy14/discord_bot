@@ -107,6 +107,7 @@ async def ready_up(league_id, discord_channel_id):
             if match.ready_up_1 and match.ready_up_2:
                 join_code = uuid.uuid4().hex[:10]
                 create_message(discord_channel_id, f"You can now join the game with code: `{join_code}`")
+                await check_for_match_completion.apply_async(args=[discord_channel_id])
                 return
             else:
                 if countdown % 10 == 0:
@@ -117,6 +118,30 @@ async def ready_up(league_id, discord_channel_id):
     await matches_repository.set_ready(match, match.player_id_2, False)
     await matches_repository.set_ready(match, match.player_id_1, False)
     return
+
+@celery.task(name='check-for-match-completion', ignore_result=True)
+async def check_for_match_completion(discord_channel_id):
+    countdown = 3 #60 * 5
+    while countdown > 0:
+        await asyncio.sleep(1)
+        print(f"check for match completion {countdown}")
+        countdown -= 1
+    components = [
+        {
+            "type": 1,
+            "components": [
+                {
+                    "type": 2,
+                    "label": "✅",
+                    "style": 1,
+                    "custom_id": "GAME_FINISHED"
+                }
+            ]
+
+        }
+    ]
+    create_message(discord_channel_id, f"Hey there! Did the game finish? Hit the checkmark if so!", components=components)
+
 
 
 

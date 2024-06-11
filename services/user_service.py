@@ -25,6 +25,9 @@ class UserService():
     async def get_league_user(self, discord_id, league_id) -> LeagueUser:
         return await self.user_repository.get_league_user(discord_id, league_id)
 
+    async def update_league_user(self, league_user: LeagueUser, updates) -> LeagueUser:
+        return await self.user_repository.update_league_user(league_user, updates)
+
     async def register_user(self, body):
         discord_user_id = body['member']['user']['id']
         gu_user_name = body['data']['options'][0]['value']

@@ -195,12 +195,14 @@ def create_channel(guild_id, channel_name, permissions, guild_type=0, parent_id=
     return channel
 
 
-def create_message(channel_id, message):
+def create_message(channel_id, message, components=None):
     endpoint = f"/channels/{channel_id}/messages"
     full_url = f"{DISCORD_HOST}{endpoint}"
     data = {
         "content": message
     }
+    if components:
+        data['components'] = components
     response = requests.post(full_url, headers={'Authorization': f'Bot {BOT_TOKEN}'}, json=data)
     message = response.json()
     pprint(message)

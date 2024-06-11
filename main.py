@@ -55,7 +55,11 @@ async def interactions(req: Request, backgorund_tasks: BackgroundTasks):
             return await matches_service.set_ready_up_status(channel_id, player_id)
 
     elif t == InteractionType.MESSAGE_COMPONENT:
-        return await matches_service.react_to_ready_up(body)
+        message_command = body['data']['custom_id']
+        if message_command == "READY_UP":
+            return await matches_service.react_to_ready_up(body)
+        elif message_command == "GAME_FINISHED":
+            return await matches_service.handle_finished_game(body)
 
 @app.post("/api/roles")
 async def add_role(req: Request):
