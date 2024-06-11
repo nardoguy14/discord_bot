@@ -142,10 +142,17 @@ class MatchesService:
         await self.users_service.update_league_user(league_user_1, {'ranking': player_1_new_elo})
         await self.users_service.update_league_user(league_user_2, {'ranking': player_2_new_elo})
 
+        winner = None
+        if player_1_won:
+            winner = player_1.gu_user_name
+        else:
+            winner = player_2.gu_user_name
+
         return {
             'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             'data': {
                 'content': 'Game is set. \n'
+                           f'Player: {winner} won.🎉🎊🥳\n'
                            'New elo scores are:\n'
                            f'    Player1 {player_1.gu_user_name}: {player_1_new_elo}\n'
                            f'    Player2 {player_2.gu_user_name}: {player_2_new_elo}'
