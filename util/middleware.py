@@ -97,6 +97,7 @@ def get_required_role(command_name):
         "register": [],
         "create-league": [Role.HOMIE_ADMIN.name],
         "join-league": [Role.HOMIE_USERS.name],
+        "submit-deck": [Role.HOMIE_USERS.name],
         "READY_UP": [Role.HOMIE_USERS.name],
         "DONT_READY_UP": [Role.HOMIE_USERS.name],
     }

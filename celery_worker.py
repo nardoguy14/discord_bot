@@ -2,7 +2,7 @@ import pprint
 from aio_celery import Celery
 import asyncio
 import uuid
-
+from discord_interactions import InteractionResponseType
 from domain.leagues import LeagueUser, User
 from domain.matches import Match
 from repositories.base_repository import postgres_base_repo
@@ -13,7 +13,7 @@ from util.discord_apis import (create_channel, get_role, delete_channel, edit_me
                                modify_channel_permissions, get_guild_channel, create_message)
 from repositories.leagues_repository import LeaguesRepository
 import os
-
+from util.gu_apis import get_matches
 
 celery = Celery()
 
@@ -121,7 +121,7 @@ async def ready_up(league_id, discord_channel_id):
 
 @celery.task(name='check-for-match-completion', ignore_result=True)
 async def check_for_match_completion(discord_channel_id):
-    countdown = 3 #60 * 5
+    countdown = 60 * 5
     while countdown > 0:
         await asyncio.sleep(1)
         print(f"check for match completion {countdown}")
@@ -143,6 +143,88 @@ async def check_for_match_completion(discord_channel_id):
     create_message(discord_channel_id, f"Hey there! Did the game finish? Hit the checkmark if so!", components=components)
 
 
+@celery.task(name='ask-for-decks', ignore_result=True)
+async def ask_for_decks(discord_channel_id):
+    countdown = 60 * 5
+    codes_set = False
+    create_message(discord_channel_id, "Please submit decks now using `/submit-deck`")
+    message = create_message(discord_channel_id, f"Waiting {countdown} seconds...")
+    while countdown > 0:
+        await asyncio.sleep(1)
+        print(f"ask for decks {countdown}")
+        countdown -= 1
+        match = await matches_repository.get_match_by_discord_id(discord_channel_id)
+        if match.deck_code_1 is not None and match.deck_code_2 is not None:
+            codes_set = True
+            break
+        edit_message(discord_channel_id, message['id'], f"Waiting {countdown} seconds...")
+
+    if codes_set:
+        await handle_finished_game(discord_channel_id)
+    else:
+        create_message(discord_channel_id, message="Decks have not been submitted successfully. Please submit them. Waiting again.")
+        await ask_for_decks.delay(discord_channel_id)
+
+async def handle_finished_game(discord_channel_id):
+    match = await matches_repository.get_match_by_discord_id(discord_channel_id)
+    player_1: User = await users_service.get_user_by_discord_id(match.player_id_1)
+    player_2: User = await users_service.get_user_by_discord_id(match.player_id_2)
+    player_1_matches = get_matches(player_1.gu_user_id)
+
+    league_user_1 = await users_service.get_league_user(player_1.discord_id, match.league_id)
+    league_user_2 = await users_service.get_league_user(player_2.discord_id, match.league_id)
+
+    latest_match_1 = player_1_matches['records'][0]
+
+    player_1_won = False
+    player_2_won = False
+    if player_1.gu_user_id == str(latest_match_1['player_won']): # and \
+        #player_2.gu_user_id == latest_match_1['player_lost']:
+        print('player 1 won')
+        player_1_won = True
+    elif player_1.gu_user_id == str(latest_match_1['player_lost']): # and \
+        # player_2.gu_user_id == latest_match_1['player_won']:
+        print('player 2 won')
+        player_2_won = True
+
+    league_user_1.ranking = float(league_user_1.ranking)
+    league_user_2.ranking = float(league_user_2.ranking)
+    if league_user_1.ranking > league_user_2.ranking and player_1_won:
+        change_in_elo = (1.0/ (1.3 + abs(league_user_1.ranking - league_user_2.ranking)))
+        player_1_new_elo = league_user_1.ranking + change_in_elo
+        player_2_new_elo = league_user_2.ranking - change_in_elo
+    elif league_user_1.ranking < league_user_2.ranking and player_1_won:
+        change_in_elo_winner = (abs(league_user_1.ranking - league_user_2.ranking)/ (0.75 + abs(league_user_1.ranking - league_user_2.ranking)))
+        change_in_elo_loser = (abs(league_user_1.ranking - league_user_2.ranking)/ (1.0 + abs(league_user_1.ranking - league_user_2.ranking)))
+        player_1_new_elo = league_user_1.ranking + change_in_elo_winner
+        player_2_new_elo = league_user_2.ranking - change_in_elo_loser
+    elif league_user_2.ranking > league_user_1.ranking and player_2_won:
+        change_in_elo = (1.0/ (1.3 + abs(league_user_1.ranking - league_user_2.ranking)))
+        player_2_new_elo = league_user_2.ranking + change_in_elo
+        player_1_new_elo = league_user_1.ranking - change_in_elo
+    elif league_user_2 < league_user_1.ranking and player_2_won:
+        change_in_elo_winner = (abs(league_user_1.ranking - league_user_2.ranking)/ (0.75 + abs(league_user_1.ranking - league_user_2.ranking)))
+        change_in_elo_loser = (abs(league_user_1.ranking - league_user_2.ranking)/ (1.0 + abs(league_user_1.ranking - league_user_2.ranking)))
+        player_2_new_elo = league_user_2.ranking + change_in_elo_winner
+        player_1_new_elo = league_user_1.ranking - change_in_elo_loser
+
+    await users_service.update_league_user(league_user_1, {'ranking': player_1_new_elo})
+    await users_service.update_league_user(league_user_2, {'ranking': player_2_new_elo})
+
+    winner = None
+    if player_1_won:
+        winner = player_1.gu_user_name
+    else:
+        winner = player_2.gu_user_name
+
+    message = f"""
+Game is set. \n
+Player: {winner} won.🎉🎊🥳\n
+New elo scores are:\n
+    Player1 {player_1.gu_user_name}: {player_1_new_elo}\n
+    Player2 {player_2.gu_user_name}: {player_2_new_elo}
+    """
+    create_message(discord_channel_id, message)
 
 
 async def get_users_who_match(ranking, disparity, player_id):

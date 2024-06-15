@@ -191,6 +191,20 @@ READY_UP = {
     "description": "Ready for a match and prompts other user to ready up too.",
 }
 
+SUBMIT_DECK = {
+    "name": "submit-deck",
+    "type": 1,
+    "description": "Submits a deck used in a given match",
+    "options": [
+        {
+            "name": "deck-code",
+            "description": "The deck code to submit",
+            "type": 3,
+            "required": True,
+        },
+    ]
+}
+
 data = [
     CREATE_LEAGUE,
     JOIN_LEAGUE,
@@ -201,7 +215,8 @@ data = [
     UPDATE_LEAGUE_MAX_PLAYS,
     UPDATE_LEAGUE_MAX_DISPARITY,
     MATCHMAKE,
-    READY_UP
+    READY_UP,
+    SUBMIT_DECK
 ]
 
 

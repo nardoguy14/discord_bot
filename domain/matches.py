@@ -13,3 +13,5 @@ class Match(BaseModel):
     discord_channel_id = db.Column(db.String, nullable=False)
     ready_up_1 = db.Column(db.Boolean, nullable=True)
     ready_up_2 = db.Column(db.Boolean, nullable=True)
+    deck_code_1 = db.Column(db.String, nullable=True)
+    deck_code_2 = db.Column(db.String, nullable=True)

@@ -44,3 +44,11 @@ class MatchesRepository():
             await current_match.update(ready_up_1=status).apply()
         else:
             await current_match.update(ready_up_2=status).apply()
+
+    async def set_deck(self, discord_channel_id, player_id, deck_code):
+        match = await self.get_match_by_discord_id(discord_channel_id)
+        if player_id == match.player_id_1:
+            match.deck_code_1 = deck_code
+            await match.update(deck_code_1=deck_code).apply()
+        elif player_id == match.player_id_2:
+            await match.update(deck_code_2=deck_code).apply()
