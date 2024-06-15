@@ -10,6 +10,7 @@ GETTING_STARTED_CHANNEL = "getting-started"
 GENERAL_CHANNEL = "general"
 ANNOUNCEMENTS_CHANNEL = "announcements"
 ADMIN_ACTIONS_CHANNEL = "admin-actions"
+DISPUTES = 'disputes'
 
 basic_role_id = create_basic_user_roles(Role.HOMIE_USERS.name, GUILD_ID)['__values__']['role_id']
 admin_role_id = create_basic_user_roles(Role.HOMIE_ADMIN.name, GUILD_ID)['__values__']['role_id']
@@ -25,6 +26,9 @@ admin_permissions = [
     {'id': admin_role_id, 'type': 0, 'allow': "1024"}
 ]
 admin_actions_channel = create_channel(GUILD_ID, ADMIN_ACTIONS_CHANNEL, admin_permissions)
+
+create_channel(GUILD_ID, ADMIN_ACTIONS_CHANNEL, admin_permissions)
+
 
 def setup_getting_started_channel():
     getting_started_channel = create_channel(GUILD_ID, GETTING_STARTED_CHANNEL, can_view_but_cant_message_channel_permissions)

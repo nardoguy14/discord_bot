@@ -205,6 +205,12 @@ SUBMIT_DECK = {
     ]
 }
 
+DISPUTE = {
+    "name": "dispute",
+    "type": 1,
+    "description": "Used to dispute hte result of a given match.",
+}
+
 data = [
     CREATE_LEAGUE,
     JOIN_LEAGUE,
@@ -216,7 +222,8 @@ data = [
     UPDATE_LEAGUE_MAX_DISPARITY,
     MATCHMAKE,
     READY_UP,
-    SUBMIT_DECK
+    SUBMIT_DECK,
+    DISPUTE
 ]
 
 

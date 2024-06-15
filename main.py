@@ -58,6 +58,8 @@ async def interactions(req: Request, backgorund_tasks: BackgroundTasks):
             player_id = body['member']['user']['id']
             deck_code = body['data']['options'][0]['value']
             return await matches_service.save_deck(channel_id, player_id, deck_code)
+        elif name == "dispute":
+            return await matches_service.dispute_modal(body)
 
     elif t == InteractionType.MESSAGE_COMPONENT:
         message_command = body['data']['custom_id']
@@ -65,6 +67,12 @@ async def interactions(req: Request, backgorund_tasks: BackgroundTasks):
             return await matches_service.react_to_ready_up(body)
         elif message_command == "GAME_FINISHED":
             return await matches_service.wait_for_decks_and_wrap_up_game(body)
+
+    elif t == InteractionType.MODAL_SUBMIT:
+        modal_type = body['data']['custom_id']
+        if modal_type == 'dispute_modal':
+            return await matches_service.dispute_match(body)
+
 
 @app.post("/api/roles")
 async def add_role(req: Request):
