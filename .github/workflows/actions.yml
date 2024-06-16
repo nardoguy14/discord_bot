@@ -32,7 +32,7 @@ jobs:
       - name: Push Docker image
         run: |
           echo "Pushing Docker image..."
-          docker push nardoarevalo14/twitch_leagues_bot:latest
+          docker push nardoarevalo14/twitch_leagues_bot:latest/twitch_leagues_bot:latest
       
 
 
