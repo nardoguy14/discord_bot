@@ -180,7 +180,7 @@ class MatchesService:
         member = body['member']['user']['id']
         disputes_channel = get_guild_channel_by_name(GUILD_ID, "disputes")
         create_message(disputes_channel['id'],
-                       "**New Dispute**\n\n"
+                       ">>> **New Dispute**\n\n"
                        f"   Player disputing: `{member}`\n"
                        f"   Match Id: `{match.id}`\n"
                        f"   Discord_channel_id: `{body['channel']['id']}`\n"
