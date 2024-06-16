@@ -62,15 +62,4 @@ jobs:
           STACK_NAME="Discord League Bot Stack"
           TEMPLATE_FILE="deployment/infra_cloudformation.yml"
           CAPABILITIES="CAPABILITY_IAM"
-
-#          STACK_EXISTS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME 2>/dev/null)
           aws cloudformation describe-stacks --stack-name $STACK_NAME
-#          if [ -z "$STACK_EXISTS" ]; then
-#              echo "Stack does not exist. Creating stack..."
-#              aws cloudformation create-stack --stack-name $STACK_NAME --template-body file://$TEMPLATE_FILE --capabilities $CAPABILITIES
-#              aws cloudformation wait stack-create-complete --stack-name $STACK_NAME
-#          else
-#              echo "Stack exists. Updating stack..."
-#              aws cloudformation update-stack --stack-name $STACK_NAME --template-body file://$TEMPLATE_FILE --capabilities $CAPABILITIES
-#              aws cloudformation wait stack-update-complete --stack-name $STACK_NAME
-#          fi
