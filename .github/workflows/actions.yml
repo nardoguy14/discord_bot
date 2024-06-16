@@ -20,7 +20,7 @@ jobs:
       - name: Build Docker image
         run: |
           echo "Building Docker image..."
-          docker buildx build --tag twitch_bot:latest --file Dockerfile .
+          docker buildx build --tag twitch_leagues_bot:latest --file Dockerfile .
           echo "Docker twitch bot image built."
 
       - name: Build Postgres Migrations Docker image
@@ -28,7 +28,17 @@ jobs:
           echo "Building Docker image..."
           docker buildx build --tag twitch_bot_migrations:latest --file Dockerfile.migrations .
           echo "Docker twitch bot image built."
-      
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push Docker image
+        run: |
+          echo "Pushing Docker image..."
+          docker push nardoarevalo14/twitch_leagues_bot:latest
       
 
 
