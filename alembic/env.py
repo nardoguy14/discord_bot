@@ -40,7 +40,7 @@ def run_migrations_offline() -> None:
 
     """
 
-    url = f"postgresql://{os.environ['POSTGRES_USER']}:{os.environ['POSTGRES_PASSWORD']}@localhost/{os.environ['POSTGRES_DB']}"
+    url = f"postgresql://{os.environ['POSTGRES_USER']}:{os.environ['POSTGRES_PASSWORD']}@{os.environ['POSTGRES_HOST']}/{os.environ['POSTGRES_DB']}"
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -60,7 +60,7 @@ def run_migrations_online() -> None:
 
     """
     connectable = engine_from_config(
-        {'sqlalchemy.url': f"postgresql://{os.environ['POSTGRES_USER']}:{os.environ['POSTGRES_PASSWORD']}@localhost/{os.environ['POSTGRES_DB']}"},
+        {'sqlalchemy.url': f"postgresql://{os.environ['POSTGRES_USER']}:{os.environ['POSTGRES_PASSWORD']}@{os.environ['POSTGRES_HOST']}/{os.environ['POSTGRES_DB']}"},
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )

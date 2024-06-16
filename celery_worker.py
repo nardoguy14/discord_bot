@@ -2,6 +2,8 @@ import pprint
 from aio_celery import Celery
 import asyncio
 import uuid
+import contextlib
+
 from discord_interactions import InteractionResponseType
 from domain.leagues import LeagueUser, User
 from domain.matches import Match
@@ -15,21 +17,27 @@ from repositories.leagues_repository import LeaguesRepository
 import os
 from util.gu_apis import get_matches
 
+REDIS_HOST = os.environ.get("REDIS_HOST")
+
 celery = Celery()
 
 celery.conf.update(
-    result_backend="redis://localhost:6379/0",
-    broker_url="amqp://guest:guest@localhost:5672/"
+    result_backend=f"redis://{REDIS_HOST}:6379/0",
+    broker_url=f"amqp://guest:guest@{REDIS_HOST}:5672/"
 )
 
 GUILD_ID = os.environ.get("DISCORD_GUILD_ID")
 everyone_role = get_role(GUILD_ID, "@everyone")
-loop = asyncio.get_event_loop()
-loop.run_until_complete(postgres_base_repo.connect())
 matches_repository = MatchesRepository()
 matches_service = MatchesService()
 leagues_repository = LeaguesRepository()
 users_service = UserService()
+
+@celery.define_app_context
+@contextlib.asynccontextmanager
+async def setup_context():
+    db = await postgres_base_repo.connect()
+    yield db
 
 
 @celery.task(name="add-two-numbers")

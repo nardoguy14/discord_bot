@@ -15,9 +15,11 @@ class PostgresBaseRepository():
 
     async def connect(self):
         if "USING_FAST_API" not in os.environ:
+            print(DATABASE_URL)
             await self.db.set_bind(DATABASE_URL)
             print("binded")
             print(DATABASE_URL)
+            return self.db
 
 
 postgres_base_repo = PostgresBaseRepository()

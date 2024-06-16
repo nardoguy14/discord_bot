@@ -188,7 +188,6 @@ class MatchesService:
                        f"   Image_url: `{image_url} `\n"
                        f"   Error: `{error}`\n"
                        )
-        print("weeeeee")
         print(body)
         return {
             'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,

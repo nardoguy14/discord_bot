@@ -26,6 +26,60 @@ services:
     networks:
       - redis-network
 
+  twitch_bot_apis:
+    image: "twitch_bot_apis:latest"
+    container_name: "apis"
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_HOST: docker.for.mac.localhost #${POSTGRES_HOST}
+      POSTGRES_DB: tempo #${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DISCORD_GUILD_ID: ${DISCORD_GUILD_ID}
+      DISCORD_APPLICATION_ID: ${DISCORD_APPLICATION_ID}
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
+      DISCORD_BOT_PUBLIC_KEY: ${DISCORD_BOT_PUBLIC_KEY}
+      USING_FAST_API: 1
+      REDIS_HOST: docker.for.mac.localhost
+
+  twitch_celery_worker:
+    image: "twitch_bot_apis:latest"
+    container_name: "celery_worker"
+    environment:
+      POSTGRES_HOST: docker.for.mac.localhost #${POSTGRES_HOST}
+      POSTGRES_DB: tempo #${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DISCORD_GUILD_ID: ${DISCORD_GUILD_ID}
+      DISCORD_APPLICATION_ID: ${DISCORD_APPLICATION_ID}
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
+      DISCORD_BOT_PUBLIC_KEY: ${DISCORD_BOT_PUBLIC_KEY}
+      REDIS_HOST: docker.for.mac.localhost
+    command: ["aio_celery", "worker", "celery_worker:celery"]
+
+  twitch_gateway_bot:
+    image: "twitch_bot_apis:latest"
+    container_name: "gateway_bot"
+    environment:
+      DISCORD_GUILD_ID: ${DISCORD_GUILD_ID}
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
+      DISCORD_APPLICATION_ID: ${DISCORD_APPLICATION_ID}
+    command: ["python", "gateway_bot.py"]
+
+  migrations:
+    container_name: "migrations"
+    build:
+      context: .
+      dockerfile: Dockerfile.migrations
+#    depends_on:
+#      - postgres
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
 volumes:
   redis-data:
 
