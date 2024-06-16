@@ -20,7 +20,8 @@ jobs:
       - name: Build Docker image
         run: |
           echo "Building Docker image..."
-          docker buildx build --tag twitch_leagues_bot:latest --file Dockerfile .
+          docker buildx build -t twitch_leagues_bot:latest .
+          docker tag twitch_leagues_bot:latest nardoarevalo/twitch_leagues_bot:latest
           echo "Docker twitch bot image built."
 
       - name: Log in to DockerHub
@@ -32,7 +33,7 @@ jobs:
       - name: Push Docker image
         run: |
           echo "Pushing Docker image..."
-          docker push nardoarevalo14/twitch_leagues_bot:latest/twitch_leagues_bot:latest
+          docker push nardoarevalo/twitch_leagues_bot:latest
       
 
 
