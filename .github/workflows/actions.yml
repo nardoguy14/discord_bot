@@ -2,9 +2,10 @@ name: Deploy to AWS
 
 run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
 
-push:
-  branches:
-    - main
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   Explore-GitHub-Actions:
