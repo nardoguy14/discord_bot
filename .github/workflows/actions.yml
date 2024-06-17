@@ -57,6 +57,7 @@ jobs:
           CAPABILITIES="CAPABILITY_IAM"
           
           aws cloudformation list-stacks > stacks.json
+          cat stacks.json
           STACK_EXISTS=$(python scripts/parse_stacks.py "$STACK_NAME")
   
           if [[ "$STACK_EXISTS" == "nostack" ]]; then
