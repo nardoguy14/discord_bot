@@ -56,5 +56,15 @@ jobs:
           TEMPLATE_FILE="deployment/infra_cloudformation.yml"
           CAPABILITIES="CAPABILITY_IAM"
           
-          STACK_EXISTS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME 2> /dev/null)
+          aws cloudformation list-stacks > stacks.json
+          STACK_EXISTS=$(python scripts/parse_stacks.py "$STACK_NAME")
           
+          if ["$STACK_EXISTS" == "0"]; then
+            echo "Stack does not exist. Creating stack..."
+            aws cloudformation create-stack --stack-name $STACK_NAME --template-body file://$TEMPLATE_FILE --capabilities $CAPABILITIES
+            aws cloudformation wait stack-create-complete --stack-name $STACK_NAME
+          else
+            echo "Stack exists. Updating stack..."
+            aws cloudformation update-stack --stack-name $STACK_NAME --template-body file://$TEMPLATE_FILE --capabilities $CAPABILITIES
+            aws cloudformation wait stack-update-complete --stack-name $STACK_NAME
+          fi
