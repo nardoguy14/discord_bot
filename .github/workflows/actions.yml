@@ -52,7 +52,7 @@ jobs:
 
       - name: Create or Update Cloudformation
         run: |
-          STACK_NAME="Discord League Bot Stack"
+          STACK_NAME="Discord-League-Bot-Stack"
           TEMPLATE_FILE="deployment/infra_cloudformation.yml"
           CAPABILITIES="CAPABILITY_IAM"
           aws cloudformation describe-stacks --stack-name $STACK_NAME
