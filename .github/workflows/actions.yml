@@ -58,8 +58,9 @@ jobs:
           
           aws cloudformation list-stacks > stacks.json
           STACK_EXISTS=$(python scripts/parse_stacks.py "$STACK_NAME")
-          
-          if [["$STACK_EXISTS" == "0"]]; then
+          echo "nardo look"
+          echo $STACK_EXISTS
+          if ["$STACK_EXISTS" = "0"]; then
             echo "Stack does not exist. Creating stack..."
             aws cloudformation create-stack --stack-name $STACK_NAME --template-body file://$TEMPLATE_FILE --capabilities $CAPABILITIES
             aws cloudformation wait stack-create-complete --stack-name $STACK_NAME
