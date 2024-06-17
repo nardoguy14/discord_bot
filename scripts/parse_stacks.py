@@ -12,7 +12,7 @@ with open(json_file, 'r') as file:
 stacks = data['StackSummaries']
 
 for stack in stacks:
-    if stack['StackName'] == sys.argv[1]:
+    if stack['StackName'] == sys.argv[1] and stack['StackStatus'] != 'DELETE_COMPLETE':
         print("stack")
 
 print("nostack")
