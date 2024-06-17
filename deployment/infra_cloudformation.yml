@@ -95,6 +95,7 @@ Resources:
       ApplicationName: 'Discord-League-Bot-Application'
       ComputePlatform: 'Server'
 
+
   CodeDeployDeploymentGroup:
     Type: 'AWS::CodeDeploy::DeploymentGroup'
     Properties:
