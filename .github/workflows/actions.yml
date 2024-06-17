@@ -55,4 +55,4 @@ jobs:
           STACK_NAME="Discord-League-Bot-Stack"
           TEMPLATE_FILE="deployment/infra_cloudformation.yml"
           CAPABILITIES="CAPABILITY_IAM"
-          STACK_EXISTS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME 2>/dev/null)
+          STACK_EXISTS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME >/dev/null)
