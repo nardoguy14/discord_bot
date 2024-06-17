@@ -13,6 +13,6 @@ stacks = data['StackSummaries']
 
 for stack in stacks:
     if stack['StackName'] == sys.argv[1]:
-        print("1")
+        print("stack")
 
-print("0")
+print("nostack")
