@@ -92,14 +92,14 @@ Resources:
   CodeDeployApplication:
     Type: 'AWS::CodeDeploy::Application'
     Properties:
-      ApplicationName: 'Discord League Bot Application'
+      ApplicationName: 'Discord-League-Bot-Application'
       ComputePlatform: 'Server'
 
   CodeDeployDeploymentGroup:
     Type: 'AWS::CodeDeploy::DeploymentGroup'
     Properties:
       ApplicationName: !Ref CodeDeployApplication
-      DeploymentGroupName: 'Discord League Bot EC2 Deployment Group'
+      DeploymentGroupName: 'Discord-League-Bot-EC2-Deployment-Group'
       ServiceRoleArn: !GetAtt CodeDeployServiceRole.Arn
       DeploymentConfigName: 'CodeDeployDefault.OneAtATime'
       Ec2TagFilters:
