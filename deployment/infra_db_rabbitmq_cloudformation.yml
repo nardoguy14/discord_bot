@@ -40,6 +40,7 @@ Resources:
         - Key: 'Name'
           Value: 'myRabbitMQBroker'
 
+
   RDSSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
