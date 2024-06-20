@@ -80,7 +80,9 @@ Resources:
 Outputs:
   RabbitMQBrokerEndpoint:
     Description: "The endpoint address of the RabbitMQ broker"
-    Value: !GetAtt RabbitMQBroker.AmqpEndpoints
+    Value: !Join
+      - ','
+      - !GetAtt RabbitMQBroker.AmqpEndpoints
 
   RabbitMQBrokerArn:
     Description: "The ARN of the RabbitMQ broker"
