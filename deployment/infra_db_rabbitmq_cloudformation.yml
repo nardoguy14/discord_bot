@@ -51,6 +51,7 @@ Resources:
           ToPort: 5432
           CidrIp: '0.0.0.0/0'
 
+
   RDSInstance:
     Type: 'AWS::RDS::DBInstance'
     Properties:
