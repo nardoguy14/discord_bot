@@ -54,7 +54,7 @@ Resources:
   RDSInstance:
     Type: 'AWS::RDS::DBInstance'
     Properties:
-      DBInstanceIdentifier: "discord-bot-rds-1"
+      DBInstanceIdentifier: "discord-bot-rds-db"
       DBName: 'tempo'
       MasterUsername: adminwhatup
       MasterUserPassword: adminadminwhatup
