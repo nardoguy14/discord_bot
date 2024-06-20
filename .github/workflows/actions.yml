@@ -35,6 +35,39 @@ jobs:
           echo "Pushing Docker image..."
           docker push nardoarevalo14/twitch_leagues_bot:latest
 
+  Build-Rds-And-RabbitMq-Infrastructure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Create or Update Cloudformation
+        run: |
+          STACK_NAME="Discord-League-Bot-Stack"
+          TEMPLATE_FILE="deployment/infra_db_rabbitmq_cloudformation.yml"
+          CAPABILITIES="CAPABILITY_IAM"
+
+          aws cloudformation list-stacks > stacks.json
+          cat stacks.json
+          STACK_EXISTS=$(python scripts/parse_stacks.py "rds-rabbitmq-infra")
+
+          if [[ "$STACK_EXISTS" == "nostack" ]]; then
+            echo "Stack does not exist. Creating stack..."
+            aws cloudformation create-stack --stack-name rds-rabbitmq-infra --template-body file://$TEMPLATE_FILE --capabilities $CAPABILITIES
+            aws cloudformation wait stack-create-complete --stack-name rds-rabbitmq-infra
+          else
+            echo "Stack exists. Updating stack..."
+            aws cloudformation update-stack --stack-name rds-rabbitmq-infra --template-body file://$TEMPLATE_FILE --capabilities $CAPABILITIES
+            aws cloudformation wait stack-update-complete --stack-name rds-rabbitmq-infra
+          fi
 
   Build-Infrastructure:
     runs-on: ubuntu-latest

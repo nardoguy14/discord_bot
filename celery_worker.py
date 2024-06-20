@@ -22,7 +22,6 @@ REDIS_HOST = os.environ.get("REDIS_HOST")
 celery = Celery()
 
 celery.conf.update(
-    result_backend=f"redis://{REDIS_HOST}:6379/0",
     broker_url=f"amqp://guest:guest@{REDIS_HOST}:5672/"
 )
 
