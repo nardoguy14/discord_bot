@@ -67,6 +67,7 @@ jobs:
             echo "Stack exists. Updating stack..."
             aws cloudformation update-stack --stack-name rds-rabbitmq-infra --template-body file://$TEMPLATE_FILE --capabilities $CAPABILITIES 2>&1 || true
             aws cloudformation wait stack-update-complete --stack-name rds-rabbitmq-infra 2>&1 || true
+            exit 0
           fi
 
   Build-Infrastructure:
@@ -101,6 +102,7 @@ jobs:
             echo "Stack exists. Updating stack..."
             aws cloudformation update-stack --stack-name $STACK_NAME --template-body file://$TEMPLATE_FILE --capabilities $CAPABILITIES 2>&1 || true
             aws cloudformation wait stack-update-complete --stack-name $STACK_NAME 2>&1 || true
+            exit 0
           fi
 
   Deploy-Application:
