@@ -1,6 +1,11 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to create an RabbitMQ and RDS instances.
 
+Parameters:
+  RDSPassword:
+    Type: String
+    NoEcho: true
+
 Resources:
   RabbitMQSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
@@ -29,7 +34,7 @@ Resources:
       PubliclyAccessible: false
       Users:
         - Username: 'admin'
-          Password: 'YourPasswordHere'
+          Password: !Ref RDSPassword
       SubnetIds:
         - 'subnet-0edcb814af0d6a907'
       SecurityGroups:

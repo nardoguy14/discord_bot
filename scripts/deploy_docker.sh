@@ -1,8 +1,9 @@
 #!/bin/bash
 
-POSTGRES_HOST=$(aws ssm get-parameter --name /myapp/POSTGRES_HOST --query "Parameter.Value" --output text)
+POSTGRES_HOST=$(aws rds describe-db-instances --db-instance-identifier discord-bot-rds-db --query "DBInstances[0].Endpoint.Address")
+POSTGRES_HOST=$(echo ${POSTGRES_HOST//\"/})
 POSTGRES_DB=tempo
-POSTGRES_USER=$(aws ssm get-parameter --name /myapp/POSTGRES_USER --query "Parameter.Value" --output text)
+POSTGRES_USER=admin
 POSTGRES_PASSWORD=$(aws ssm get-parameter --name /myapp/POSTGRES_PASSWORD --query "Parameter.Value" --output text)
 
 DISCORD_GUILD_ID=$(aws ssm get-parameter --name /myapp/DISCORD_GUILD_ID --query "Parameter.Value" --output text)

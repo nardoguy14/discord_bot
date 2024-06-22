@@ -1,6 +1,11 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to create an EC2 instance, CodeDeploy application, and deployment group.
 
+Parameters:
+  RDSPassword:
+    Type: String
+    NoEcho: true
+
 Resources:
   MyS3Bucket:
     Type: AWS::S3::Bucket
@@ -73,6 +78,11 @@ Resources:
       InstanceType: 't2.micro'
       IamInstanceProfile: !Ref EC2InstanceProfile
       KeyName: 'nardos-key-pair' # Update this to your key pair
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          echo "export RDSPassword=${RDSPassword}" >> /etc/profile.d/myenvvars.sh
+          source /etc/profile.d/myenvvars.sh
       SecurityGroupIds:
         - !Ref EC2SecurityGroup
       Tags:
