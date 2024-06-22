@@ -74,7 +74,7 @@ jobs:
 
       - name: Create Initial Database
         env:
-          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_PORT: 5432
           DB_USERNAME: admin
           RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
         run: |
