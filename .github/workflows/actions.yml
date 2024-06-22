@@ -66,7 +66,7 @@ jobs:
           else
             echo "Stack exists. Updating stack..."
             aws cloudformation update-stack --stack-name rds-rabbitmq-infra --template-body file://$TEMPLATE_FILE --capabilities $CAPABILITIES 2>&1 || true
-            echo "waiting now"
+            echo $?
             aws cloudformation wait stack-update-complete --stack-name rds-rabbitmq-infra 
             exit 0
           fi
