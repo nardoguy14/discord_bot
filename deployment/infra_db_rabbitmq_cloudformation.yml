@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to create an RabbitMQ and RDS instances.
 
 Parameters:
-  RDSPassword:
+  RDS_PASSWORD:
     Type: String
     NoEcho: true
 
@@ -34,7 +34,7 @@ Resources:
       PubliclyAccessible: false
       Users:
         - Username: 'admin'
-          Password: !Ref RDSPassword
+          Password: !Ref RDS_PASSWORD
       SubnetIds:
         - 'subnet-0edcb814af0d6a907'
       SecurityGroups:
@@ -63,7 +63,7 @@ Resources:
       DBInstanceIdentifier: "discord-bot-rds-db"
       DBName: 'tempo'
       MasterUsername: adminwhatup
-      MasterUserPassword: !Ref RDSPassword
+      MasterUserPassword: !Ref RDS_PASSWORD
       DBInstanceClass: 'db.t3.micro'
       AllocatedStorage: '20'
       Engine: 'postgres'
