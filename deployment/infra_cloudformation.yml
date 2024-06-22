@@ -2,6 +2,11 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to create an EC2 instance, CodeDeploy application, and deployment group.
 
 Resources:
+  MyS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: discord-bot-leagues
+
   EC2InstanceRole:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -19,8 +24,7 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - 's3:Get*'
-                  - 's3:List*'
+                  - 's3:*'
                   - 'codedeploy:*'
                   - 'logs:*'
                 Resource: '*'
@@ -48,6 +52,8 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
+                  - "s3:*"
+                  - "codedeploy:*"
                   - 'ec2:Describe*'
                   - 'ec2:StopInstances'
                   - 'ec2:TerminateInstances'

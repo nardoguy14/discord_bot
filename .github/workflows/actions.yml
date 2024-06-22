@@ -65,8 +65,8 @@ jobs:
             aws cloudformation wait stack-create-complete --stack-name rds-rabbitmq-infra
           else
             echo "Stack exists. Updating stack..."
-            aws cloudformation update-stack --stack-name rds-rabbitmq-infra --template-body file://$TEMPLATE_FILE --capabilities $CAPABILITIES 2> /dev/null
-            aws cloudformation wait stack-update-complete --stack-name rds-rabbitmq-infra 2> /dev/null
+            aws cloudformation update-stack --stack-name rds-rabbitmq-infra --template-body file://$TEMPLATE_FILE --capabilities $CAPABILITIES 2>&1 || true
+            aws cloudformation wait stack-update-complete --stack-name rds-rabbitmq-infra 2>&1 || true
           fi
 
   Build-Infrastructure:
@@ -99,6 +99,23 @@ jobs:
             aws cloudformation wait stack-create-complete --stack-name $STACK_NAME
           else
             echo "Stack exists. Updating stack..."
-            aws cloudformation update-stack --stack-name $STACK_NAME --template-body file://$TEMPLATE_FILE --capabilities $CAPABILITIES 2> /dev/null
-            aws cloudformation wait stack-update-complete --stack-name $STACK_NAME 2> /dev/null
+            aws cloudformation update-stack --stack-name $STACK_NAME --template-body file://$TEMPLATE_FILE --capabilities $CAPABILITIES 2>&1 || true
+            aws cloudformation wait stack-update-complete --stack-name $STACK_NAME 2>&1 || true
           fi
+
+  Deploy-Application:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Zip source files
+        run: zip -r discord-bot.zip .
+
+      - name: Upload to S3
+        run: aws s3 cp discord-bot.zip s3://discord-bot-leagues/discord-bot.zip
+
+#      - name: Create CodeDeploy deployment
+#        run: |
+#          aws deploy create-deployment \
+#            --application-name Discord-League-Bot-Application \
+#            --deployment-group-name Discord-League-Bot-EC2-Deployment-Group \
+#            --s3-location bucket=discord-bot-leagues,bundleType=zip,key=discord-bot.zip

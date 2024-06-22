@@ -15,22 +15,13 @@ services:
     networks:
       - redis-network
 
-  redis:
-    image: "redis:latest"
-    container_name: "redis-server"
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
-    command: [ "redis-server", "--appendonly", "yes" ]
-    networks:
-      - redis-network
-
   twitch_bot_apis:
     image: "twitch_bot_apis:latest"
     container_name: "apis"
     ports:
       - "8000:8000"
+    depends_on:
+      - postgres
     environment:
       POSTGRES_HOST: docker.for.mac.localhost #${POSTGRES_HOST}
       POSTGRES_DB: tempo #${POSTGRES_DB}
@@ -56,6 +47,8 @@ services:
       DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
       DISCORD_BOT_PUBLIC_KEY: ${DISCORD_BOT_PUBLIC_KEY}
       REDIS_HOST: docker.for.mac.localhost
+    depends_on:
+      - postgres
     command: ["aio_celery", "worker", "celery_worker:celery"]
 
   twitch_gateway_bot:
@@ -72,13 +65,24 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.migrations
-#    depends_on:
-#      - postgres
+    depends_on:
+      - postgres
     environment:
       POSTGRES_HOST: ${POSTGRES_HOST}
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+  rabbitmq:
+    container_name: rabbitmq_embed_svc
+    image: "rabbitmq:management"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+      - "2379:2379"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
 
 volumes:
   redis-data:
