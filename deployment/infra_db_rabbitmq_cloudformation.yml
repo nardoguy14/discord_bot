@@ -63,7 +63,7 @@ Resources:
       DBInstanceIdentifier: "discord-bot-rds-db"
       DBName: 'tempo'
       MasterUsername: adminwhatup
-      MasterUserPassword: adminadminwhatup
+      MasterUserPassword: !Ref RDSPassword
       DBInstanceClass: 'db.t3.micro'
       AllocatedStorage: '20'
       Engine: 'postgres'

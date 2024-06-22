@@ -3,7 +3,7 @@
 POSTGRES_HOST=$(aws rds describe-db-instances --db-instance-identifier discord-bot-rds-db --query "DBInstances[0].Endpoint.Address")
 POSTGRES_HOST=$(echo ${POSTGRES_HOST//\"/})
 POSTGRES_DB=tempo
-POSTGRES_USER=admin
+POSTGRES_USER=adminwhatup
 POSTGRES_PASSWORD=$POSTGRES_PASSWORD # set by git actions to cloudformation to userdata in ec2
 
 DISCORD_GUILD_ID=$(aws ssm get-parameter --name /MyApp/DISCORD_GUILD_ID --query "Parameter.Value" --output text)
