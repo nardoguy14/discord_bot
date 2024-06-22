@@ -3,6 +3,7 @@ name: Deploy to AWS
 run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
