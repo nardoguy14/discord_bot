@@ -105,6 +105,7 @@ jobs:
 
   Deploy-Application:
     runs-on: ubuntu-latest
+    needs: [Build-Rds-And-RabbitMq-Infrastructure, Build-Infrastructure]
     steps:
 
       - name: Zip source files
