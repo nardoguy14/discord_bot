@@ -32,6 +32,7 @@ Resources:
                   - 's3:*'
                   - 'codedeploy:*'
                   - 'logs:*'
+                  - 'ssm:*'
                 Resource: '*'
 
   EC2InstanceProfile:
@@ -81,7 +82,7 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
-          echo "export RDSPassword=${RDSPassword}" >> /etc/profile.d/myenvvars.sh
+          echo "export POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" >> /etc/profile.d/myenvvars.sh
           source /etc/profile.d/myenvvars.sh
       SecurityGroupIds:
         - !Ref EC2SecurityGroup

@@ -49,6 +49,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
+      - name: Install PostgreSQL client
+        run: sudo apt-get install -y postgresql-client
+
       - name: Create or Update Cloudformation
         run: |
           STACK_NAME="Discord-League-Bot-Stack"
@@ -61,13 +64,25 @@ jobs:
 
           if [[ "$STACK_EXISTS" == "nostack" ]]; then
             echo "Stack does not exist. Creating stack..."
-            aws cloudformation create-stack --stack-name rds-rabbitmq-infra --template-body file://$TEMPLATE_FILE --parameters ParameterKey=RDSPassword,ParameterValue=${{ secrets.RDS_PASSWORD }} --capabilities $CAPABILITIES
+            aws cloudformation create-stack --stack-name rds-rabbitmq-infra --template-body file://$TEMPLATE_FILE --parameters ParameterKey=POSTGRES_PASSWORD,ParameterValue=${{ secrets.RDS_PASSWORD }} --capabilities $CAPABILITIES
             aws cloudformation wait stack-create-complete --stack-name rds-rabbitmq-infra
           else
             echo "Stack exists. Updating stack..."
-            aws cloudformation update-stack --stack-name rds-rabbitmq-infra --template-body file://$TEMPLATE_FILE --parameters ParameterKey=RDSPassword,ParameterValue=${{ secrets.RDS_PASSWORD }} --capabilities $CAPABILITIES 2>&1 && \
+            aws cloudformation update-stack --stack-name rds-rabbitmq-infra --template-body file://$TEMPLATE_FILE --parameters ParameterKey=POSTGRES_PASSWORD,ParameterValue=${{ secrets.RDS_PASSWORD }} --capabilities $CAPABILITIES 2>&1 && \
             aws cloudformation wait stack-update-complete --stack-name rds-rabbitmq-infra || echo "command failed"
           fi
+
+      - name: Create Initial Database
+        env:
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_USERNAME: admin
+          RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
+        run: |
+          POSTGRES_HOST=$(aws rds describe-db-instances --db-instance-identifier discord-bot-rds-db --query "DBInstances[0].Endpoint.Address")
+          POSTGRES_HOST=$(echo ${POSTGRES_HOST//\"/})
+          export PGPASSWORD=$RDS_PASSWORD
+          psql -h $POSTGRES_HOST -p $DB_PORT -U $DB_USERNAME -c "CREATE DATABASE mydatabase;"
+
 
   Build-Infrastructure:
     runs-on: ubuntu-latest
