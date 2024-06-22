@@ -1,11 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to create an EC2 instance, CodeDeploy application, and deployment group.
 
-Parameters:
-  RDSPassword:
-    Type: String
-    NoEcho: true
-
 Resources:
   MyS3Bucket:
     Type: AWS::S3::Bucket
