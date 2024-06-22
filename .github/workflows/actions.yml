@@ -65,10 +65,14 @@ jobs:
             aws cloudformation wait stack-create-complete --stack-name rds-rabbitmq-infra
           else
             echo "Stack exists. Updating stack..."
-            aws cloudformation update-stack --stack-name rds-rabbitmq-infra --template-body file://$TEMPLATE_FILE --capabilities $CAPABILITIES 2>&1 || true
-            echo $?
-            aws cloudformation wait stack-update-complete --stack-name rds-rabbitmq-infra 
-            exit 0
+            aws cloudformation update-stack --stack-name rds-rabbitmq-infra --template-body file://$TEMPLATE_FILE --capabilities $CAPABILITIES 2>&1
+            if [ $? -eq 0 ]; then
+              echo "Command succeeded, continue with script..."
+              aws cloudformation wait stack-update-complete --stack-name rds-rabbitmq-infra
+            else
+              echo "Command failed, handle error or continue with script..."
+              exit 0
+            fi
           fi
 
   Build-Infrastructure:
