@@ -50,7 +50,7 @@ sudo docker run -d --name discord_apis -p 80:8000 \
  nardoarevalo14/twitch_leagues_bot:latest
 
 echo "running gateway container"
-docker run -d --name gateway_bot -p 8000:8000 \
+sudo docker run -d --name gateway_bot -p 8000:8000 \
  -e POSTGRES_HOST=$POSTGRES_HOST \
  -e POSTGRES_DB=$POSTGRES_DB \
  -e POSTGRES_USER=$POSTGRES_USER \
@@ -64,7 +64,7 @@ docker run -d --name gateway_bot -p 8000:8000 \
  /bin/bash -c 'python gateway_bot.py'
 
 echo "running celery container"
-docker run -d --name celery_worker \
+sudo docker run -d --name celery_worker \
  -e POSTGRES_HOST=$POSTGRES_HOST \
  -e POSTGRES_DB=$POSTGRES_DB \
  -e POSTGRES_USER=$POSTGRES_USER \
