@@ -59,7 +59,7 @@ async def add(player_id, ranking, disparity, league_id, parent_discord_channel_i
                 {'id': player_id, 'type': 1, 'allow': "1024"}
             ]
 
-            matchmaking_channel = create_channel(GUILD_ID, f"matchmaking-{uuid.uuid4().hex}", permissions,
+            matchmaking_channel = create_channel(GUILD_ID, f"🃏matchmaking--{uuid.uuid4().hex[:4]}", permissions,
                                                  parent_id=parent_discord_channel_id)
             crud_match = await matches_repository.create_match(league_id, player_id, matchmaking_channel['id'])
             create_message(matchmaking_channel['id'], f"Trying to find a match. Remaining time (seconds) to find a match: {countdown}")

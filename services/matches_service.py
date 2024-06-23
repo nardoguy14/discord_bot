@@ -15,8 +15,16 @@ class MatchesService:
     matches_repository = MatchesRepository()
     users_service = UserService()
 
-    async def set_ready_up_status(self, discord_channel_id, player_id):
-
+    async def set_ready_up_status(self, discord_channel_id, player_id, body):
+        channel = body['channel']
+        if '🃏matchmaking-' not in channel['name']:
+            # cant do that in this channel
+            return {
+                'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                'data': {
+                    'content': f'Can only execute this in a 🃏matchmaking channel'
+                }
+            }
         match: Match = await self.matches_repository.get_match_by_discord_id(discord_channel_id)
         await self.matches_repository.set_ready(match, player_id)
 
@@ -68,6 +76,15 @@ class MatchesService:
                 return result
 
     async def react_to_ready_up(self, body):
+        channel = body['channel']
+        if '🃏matchmaking-' not in channel['name']:
+            # cant do that in this channel
+            return {
+                'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                'data': {
+                    'content': f'Can only execute this in a 🃏matchmaking channel'
+                }
+            }
         player_id = body['member']['user']['id']
         decision = body['data']['custom_id']
         discord_user_id = body['member']['user']['id']
@@ -110,7 +127,16 @@ class MatchesService:
             }
         }
 
-    async def save_deck(self, discord_channel_id, player_id, deck_code):
+    async def save_deck(self, discord_channel_id, player_id, deck_code, body):
+        channel = body['channel']
+        if '🃏matchmaking-' not in channel['name']:
+            # cant do that in this channel
+            return {
+                'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                'data': {
+                    'content': f'Can only execute this in a 🃏matchmaking channel'
+                }
+            }
         await self.matches_repository.set_deck(discord_channel_id, player_id, deck_code)
         return {
             'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -120,6 +146,15 @@ class MatchesService:
         }
 
     async def dispute_modal(self, body):
+        channel = body['channel']
+        if '🃏matchmaking-' not in channel['name']:
+            # cant do that in this channel
+            return {
+                'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                'data': {
+                    'content': f'Can only execute this in a 🃏matchmaking channel'
+                }
+            }
         return {
             "type": 9,  # MODAL
             "data": {

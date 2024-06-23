@@ -26,6 +26,11 @@ class LeagueService():
     user_service = UserService()
 
     async def create_league_interaction(self, body, background_tasks):
+
+        allowed_opt = self.check_channel_allowed_for_action(body)
+        if allowed_opt:
+            return allowed_opt
+
         async def handle(body):
             name = body['data']['options'][0]['value']
             kind = body['data']['options'][1]['value']
@@ -108,6 +113,10 @@ class LeagueService():
             }
 
     async def delete_league(self, guild_id, body, background_tasks):
+        allowed_opt = self.check_channel_allowed_for_action(body)
+        if allowed_opt:
+            return allowed_opt
+
         async def handle(guild_id, body):
             league_name = body['data']['options'][0]['value'].lower()
             channels = get_guild_channels(guild_id)
@@ -136,6 +145,9 @@ class LeagueService():
         }
 
     async def update_league_dates(self, body):
+        allowed_opt = self.check_channel_allowed_for_action(body)
+        if allowed_opt:
+            return allowed_opt
         league_name = body['data']['options'][0]['value']
 
         data = body['data']['options']
@@ -174,6 +186,9 @@ class LeagueService():
         }
 
     async def update_league_name(self, body):
+        allowed_opt = self.check_channel_allowed_for_action(body)
+        if allowed_opt:
+            return allowed_opt
         league_name = body['data']['options'][0]['value']
         new_league_name = body['data']['options'][1]['value']
         channel = get_guild_channel_by_name(GUILD_ID, f"{league_name}-League")
@@ -188,6 +203,9 @@ class LeagueService():
         }
 
     async def update_league_max_plays(self, body):
+        allowed_opt = self.check_channel_allowed_for_action(body)
+        if allowed_opt:
+            return allowed_opt
         league_name = body['data']['options'][0]['value']
         max_plays = body['data']['options'][1]['value']
         await self.leagues_repository.update_league(league_name=league_name,
@@ -200,6 +218,9 @@ class LeagueService():
         }
 
     async def update_league_max_disparity(self, body):
+        allowed_opt = self.check_channel_allowed_for_action(body)
+        if allowed_opt:
+            return allowed_opt
         league_name = body['data']['options'][0]['value']
         max_disparity = body['data']['options'][1]['value']
         await self.leagues_repository.update_league(league_name=league_name,
@@ -230,10 +251,17 @@ class LeagueService():
             user = await self.user_service.get_user_by_discord_id(player_id)
             league_user = await self.user_service.get_league_user(user.discord_id, league.id)
 
-
-            # await matchweeeeeeeemake.delay(player_id, float(league_user.ranking), league.max_disparity, league.id, channel['parent_id'])
             result = await add.delay(player_id, float(league_user.ranking), float(league.max_disparity), league.id, channel['parent_id'])
             print("did i get here or not")
             print(f"heres the answer {result}")
-            # pprint.pprint(body)
 
+    def check_channel_allowed_for_action(self, body):
+        if body['channel']['name'] != 'admin-actions':
+            return {
+                'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                'data': {
+                    'content': f'This action can only be performed in admin-actions {generate_random_emoji()}'
+                }
+            }
+        else:
+            return None

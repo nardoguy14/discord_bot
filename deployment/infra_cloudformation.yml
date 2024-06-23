@@ -102,7 +102,7 @@ Resources:
           sudo tar xvzf ./ngrok-v3-stable-linux-amd64.tgz -C /usr/local/bin
           export NGROK_TOKEN=$(aws ssm get-parameter --name /MyApp/NGROK_TOKEN --query "Parameter.Value" --with-decryption  --output text)
           ngrok authtoken $NGROK_TOKEN
-          ngrok http 80 &
+          nohup ngrok http 80 > ngrok.log 2>&1 &
           sleep 5
           ngrok_url=$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')
           aws ssm put-parameter --name /MyApp/NRGROK_URL --value "$ngrok_url" --type SecureString --overwrite
@@ -131,6 +131,10 @@ Resources:
         - IpProtocol: https
           FromPort: 443
           ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 15672
+          ToPort: 15672
           CidrIp: 0.0.0.0/0
 
   CodeDeployApplication:

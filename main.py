@@ -52,12 +52,12 @@ async def interactions(req: Request, backgorund_tasks: BackgroundTasks):
         elif name == 'ready-up':
             channel_id = body['channel']['id']
             player_id = body['member']['user']['id']
-            return await matches_service.set_ready_up_status(channel_id, player_id)
+            return await matches_service.set_ready_up_status(channel_id, player_id, body)
         elif name == 'submit-deck':
             channel_id = body['channel']['id']
             player_id = body['member']['user']['id']
             deck_code = body['data']['options'][0]['value']
-            return await matches_service.save_deck(channel_id, player_id, deck_code)
+            return await matches_service.save_deck(channel_id, player_id, deck_code, body)
         elif name == "dispute":
             return await matches_service.dispute_modal(body)
 

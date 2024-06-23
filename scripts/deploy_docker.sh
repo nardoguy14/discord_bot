@@ -14,9 +14,6 @@ export DISCORD_BOT_PUBLIC_KEY=$(aws ssm get-parameter --name /MyApp/DISCORD_BOT_
 export REDIS_HOST=rabbitmq
 
 export USING_FAST_API=1
-echo "NARDO LOOK HERE"
-echo $REDIS_HOST
-echo $DISCORD_BOT_PUBLIC_KEY
 
 sudo docker network create my-network || true
 

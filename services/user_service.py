@@ -30,6 +30,13 @@ class UserService():
         return await self.user_repository.update_league_user(league_user, updates)
 
     async def register_user(self, body):
+        if '-register' not in body['channel']['name']:
+            return {
+                'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                'data': {
+                    'content': 'Can only register in new channel that is named `{user_name}-register`'
+                }
+            }
         discord_user_id = body['member']['user']['id']
         gu_user_name = body['data']['options'][0]['value']
         gu_user_id = body['data']['options'][1]['value']
