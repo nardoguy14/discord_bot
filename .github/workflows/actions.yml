@@ -138,10 +138,10 @@ jobs:
 
       - name: Set Parameter Variables
         run: |
-          aws ssm put-parameter --name /MyApp/DISCORD_GUILD_ID --value "$DISCORD_GUILD_ID" --type SecureString
-          aws ssm put-parameter --name /MyApp/DISCORD_APPLICATION_ID --value "$DISCORD_APPLICATION_ID" --type SecureString
+          aws ssm put-parameter --name /MyApp/DISCORD_GUILD_ID --value "${{ vars.DISCORD_GUILD_ID }}" --type SecureString
+          aws ssm put-parameter --name /MyApp/DISCORD_APPLICATION_ID --value "${{ vars.DISCORD_APPLICATION_ID }}" --type SecureString
           aws ssm put-parameter --name /MyApp/DISCORD_BOT_TOKEN --value "${{ secrets.DISCORD_BOT_TOKEN }}" --type SecureString
-          aws ssm put-parameter --name /MyApp/DISCORD_BOT_PUBLIC_KEY --value "$DISCORD_BOT_PUBLIC_KEY" --type SecureString
+          aws ssm put-parameter --name /MyApp/DISCORD_BOT_PUBLIC_KEY --value "${{ vars.DISCORD_BOT_PUBLIC_KEY }}" --type SecureString
 
       - name: Zip source files
         run: zip -r discord-bot.zip .
