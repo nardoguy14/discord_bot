@@ -1,6 +1,12 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to create an EC2 instance, CodeDeploy application, and deployment group.
 
+Parameters:
+  RDSPASSWORD:
+    Type: String
+    NoEcho: true
+
+
 Resources:
   MyS3Bucket:
     Type: AWS::S3::Bucket
@@ -77,7 +83,7 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
-          echo "export POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" >> /etc/profile.d/myenvvars.sh
+          echo "export POSTGRES_PASSWORD=${RDSPASSWORD}" >> /etc/profile.d/myenvvars.sh
           source /etc/profile.d/myenvvars.sh
       SecurityGroupIds:
         - !Ref EC2SecurityGroup
