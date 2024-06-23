@@ -37,6 +37,7 @@ jobs:
           docker push nardoarevalo14/twitch_leagues_bot:latest
 
   Build-Rds-And-RabbitMq-Infrastructure:
+    needs: [Build-Docker-Containers]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -83,6 +84,7 @@ jobs:
 
 
   Build-Infrastructure:
+    needs: [Build-Docker-Containers]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
