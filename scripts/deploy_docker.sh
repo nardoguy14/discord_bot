@@ -28,6 +28,8 @@ echo "stopping containers"
 # Stop any existing container
 sudo docker stop discord_apis || true
 sudo docker rm discord_apis || true
+sudo docker stop gateway_bot || true
+sudo docker rm gateway_bot || true
 
 echo "pulling latest image"
 # Pull the latest image
@@ -47,32 +49,30 @@ sudo docker run  --name discord_apis -p 80:8000 \
  -e USING_FAST_API=$USING_FAST_API \
  nardoarevalo14/twitch_leagues_bot:latest
 
-#echo "running gateway container"
-#docker run -d --name gateway_bot -p 8000:8000 \
-# -e POSTGRES_HOST=$POSTGRES_HOST \
-# -e POSTGRES_DB=$POSTGRES_DB \
-# -e POSTGRES_USER=$POSTGRES_USER \
-# -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
-# -e DISCORD_GUILD_ID=$DISCORD_GUILD_ID \
-# -e DISCORD_APPLICATION_ID=$DISCORD_APPLICATION_ID \
-# -e DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN \
-# -e DISCORD_BOT_PUBLIC_KEY=$DISCORD_BOT_PUBLIC_KEY \
-# -e REDIS_HOST=$REDIS_HOST \
-# -e USING_FAST_API=$USING_FAST_API \
-# nardoarevalo14/twitch_leagues_bot:latest \
-# /bin/bash -c 'python gateway_bot.py'
+echo "running gateway container"
+docker run -d --name gateway_bot -p 8000:8000 \
+ -e POSTGRES_HOST=$POSTGRES_HOST \
+ -e POSTGRES_DB=$POSTGRES_DB \
+ -e POSTGRES_USER=$POSTGRES_USER \
+ -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
+ -e DISCORD_GUILD_ID=$DISCORD_GUILD_ID \
+ -e DISCORD_APPLICATION_ID=$DISCORD_APPLICATION_ID \
+ -e DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN \
+ -e DISCORD_BOT_PUBLIC_KEY=$DISCORD_BOT_PUBLIC_KEY \
+ -e REDIS_HOST=$REDIS_HOST \
+ nardoarevalo14/twitch_leagues_bot:latest \
+ /bin/bash -c 'python gateway_bot.py'
 
-#echo "running celery container"
-#docker run -d --name celery_worker -p 8000:8000 \
-# -e POSTGRES_HOST=$POSTGRES_HOST \
-# -e POSTGRES_DB=$POSTGRES_DB \
-# -e POSTGRES_USER=$POSTGRES_USER \
-# -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
-# -e DISCORD_GUILD_ID=$DISCORD_GUILD_ID \
-# -e DISCORD_APPLICATION_ID=$DISCORD_APPLICATION_ID \
-# -e DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN \
-# -e DISCORD_BOT_PUBLIC_KEY=$DISCORD_BOT_PUBLIC_KEY \
-# -e REDIS_HOST=$REDIS_HOST \
-# -e USING_FAST_API=$USING_FAST_API \
-# nardoarevalo14/twitch_leagues_bot:latest \
-# /bin/bash -c 'aio_celery worker celery_worker:celery'
+echo "running celery container"
+docker run -d --name celery_worker \
+ -e POSTGRES_HOST=$POSTGRES_HOST \
+ -e POSTGRES_DB=$POSTGRES_DB \
+ -e POSTGRES_USER=$POSTGRES_USER \
+ -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
+ -e DISCORD_GUILD_ID=$DISCORD_GUILD_ID \
+ -e DISCORD_APPLICATION_ID=$DISCORD_APPLICATION_ID \
+ -e DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN \
+ -e DISCORD_BOT_PUBLIC_KEY=$DISCORD_BOT_PUBLIC_KEY \
+ -e REDIS_HOST=$REDIS_HOST \
+ nardoarevalo14/twitch_leagues_bot:latest \
+ /bin/bash -c 'aio_celery worker celery_worker:celery'
