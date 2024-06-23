@@ -50,9 +50,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Install PostgreSQL client
-        run: sudo apt-get install -y postgresql-client
-
       - name: Create or Update Cloudformation
         run: |
           STACK_NAME="Discord-League-Bot-Stack"
@@ -72,6 +69,17 @@ jobs:
             aws cloudformation update-stack --stack-name rds-rabbitmq-infra --template-body file://$TEMPLATE_FILE --parameters ParameterKey=RDSPASSWORD,ParameterValue="${{ secrets.RDS_PASSWORD }}" --capabilities $CAPABILITIES 2>&1 && \
             aws cloudformation wait stack-update-complete --stack-name rds-rabbitmq-infra || echo "command failed"
           fi
+
+      - name: Run Alembic Revisions
+        run: |
+          POSTGRES_HOST=$(aws rds describe-db-instances --db-instance-identifier discord-bot-rds-db --query "DBInstances[0].Endpoint.Address")
+          POSTGRES_HOST=$(echo ${POSTGRES_HOST//\"/})
+          POSTGRES_DB=tempo
+          POSTGRES_USER=adminwhatup
+          POSTGRES_PASSWORD=${{ secrets.RDS_PASSWORD }}
+          echo "installing requirements"
+          pip install --no-cache-dir -r requirements.txt
+          alembic upgrade head
 
 
   Build-Infrastructure:

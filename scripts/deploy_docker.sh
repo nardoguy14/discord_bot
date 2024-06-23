@@ -29,10 +29,6 @@ echo "pulling latest image"
 # Pull the latest image
 docker pull nardoarevalo14/twitch_leagues_bot:latest
 
-echo "installing requirements"
-pip install --no-cache-dir -r requirements.txt
-alembic upgrade head
-
 #echo "running api container"
 #docker run -d --name discord_apis -p 8000:8000 \
 # -e POSTGRES_HOST=$POSTGRES_HOST \
