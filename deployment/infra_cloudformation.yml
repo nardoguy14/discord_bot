@@ -34,6 +34,7 @@ Resources:
                   - 'codedeploy:*'
                   - 'logs:*'
                   - 'ssm:*'
+                  - 'mq:*'
                 Resource: '*'
 
   EC2InstanceProfile:
@@ -85,6 +86,19 @@ Resources:
           #!/bin/bash
           echo "export POSTGRES_PASSWORD=${RDSPASSWORD}" >> /etc/profile.d/myenvvars.sh
           source /etc/profile.d/myenvvars.sh
+          sudo yum update -y
+          sudo yum install ruby wget -y
+          cd /home/ec2-user
+          wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install
+          chmod +x ./install
+          sudo ./install auto
+          sudo service codedeploy-agent status
+          sudo amazon-linux-extras install docker -y
+          sudo yum install docker -y
+          sudo service docker start
+          sudo systemctl enable docker
+          docker --version
+
       SecurityGroupIds:
         - !Ref EC2SecurityGroup
       Tags:
