@@ -54,7 +54,7 @@ jobs:
       - name: Create or Update Cloudformation
         run: |
           STACK_NAME="Discord-League-Bot-Stack"
-          TEMPLATE_FILE="deployment/infra_db_rabbitmq_cloudformation.yml"
+          TEMPLATE_FILE="deployment/infra_db_cloudformation.yml"
           CAPABILITIES="CAPABILITY_IAM"
 
           aws cloudformation list-stacks > stacks.json
@@ -142,7 +142,7 @@ jobs:
           aws ssm put-parameter --name /MyApp/DISCORD_APPLICATION_ID --value "${{ vars.DISCORD_APPLICATION_ID }}" --type SecureString --overwrite
           aws ssm put-parameter --name /MyApp/DISCORD_BOT_TOKEN --value "${{ secrets.DISCORD_BOT_TOKEN }}" --type SecureString --overwrite
           aws ssm put-parameter --name /MyApp/DISCORD_BOT_PUBLIC_KEY --value "${{ vars.DISCORD_BOT_PUBLIC_KEY }}" --type SecureString --overwrite
-
+          aws ssm put-parameter --name /MyApp/NGROK_TOKEN --value "${{ secrets.NGROK_TOKEN }}" --type SecureString --overwrite
       - name: Zip source files
         run: zip -r discord-bot.zip .
 

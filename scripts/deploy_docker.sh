@@ -11,18 +11,14 @@ export DISCORD_APPLICATION_ID=$(aws ssm get-parameter --name /MyApp/DISCORD_APPL
 export DISCORD_BOT_TOKEN=$(aws ssm get-parameter --name /MyApp/DISCORD_BOT_TOKEN --query "Parameter.Value" --with-decryption --output text)
 export DISCORD_BOT_PUBLIC_KEY=$(aws ssm get-parameter --name /MyApp/DISCORD_BOT_PUBLIC_KEY --query "Parameter.Value" --with-decryption  --output text)
 
-export broker_list=$(aws mq list-brokers)
-export broker_id=$(echo "$broker_list" | jq -r '.BrokerSummaries[0].BrokerId')
-export broker_details=$(aws mq describe-broker --broker-id "$broker_id")
-export endpoint=$(echo "$broker_details" | jq -r '.BrokerInstances[0].Endpoints[0]')
-export cleaned_endpoint=${endpoint#*://}
-export cleaned_endpoint="${cleaned_endpoint%%:*}"
-export REDIS_HOST=$cleaned_endpoint
+export REDIS_HOST=rabbitmq
 
 export USING_FAST_API=1
 echo "NARDO LOOK HERE"
 echo $REDIS_HOST
 echo $DISCORD_BOT_PUBLIC_KEY
+
+sudo docker network create my-network || true
 
 echo "stopping containers"
 # Stop any existing container
@@ -30,10 +26,15 @@ sudo docker stop discord_apis || true
 sudo docker rm discord_apis || true
 sudo docker stop gateway_bot || true
 sudo docker rm gateway_bot || true
+sudo docker rm rabbitmq || true
 
 echo "pulling latest image"
 # Pull the latest image
 sudo docker pull nardoarevalo14/twitch_leagues_bot:latest
+sudo docker pull rabbitmq:management || true
+
+echo "running rabbitmq"
+sudo docker run -d --name rabbitmq --network my-network -p 5672:5672 -p 15672:15672 rabbitmq:management || true
 
 echo "running api container"
 sudo docker run -d --name discord_apis -p 80:8000 \
@@ -47,6 +48,7 @@ sudo docker run -d --name discord_apis -p 80:8000 \
  -e DISCORD_BOT_PUBLIC_KEY=$DISCORD_BOT_PUBLIC_KEY \
  -e REDIS_HOST=$REDIS_HOST \
  -e USING_FAST_API=$USING_FAST_API \
+ --network my-network \
  nardoarevalo14/twitch_leagues_bot:latest
 
 echo "running gateway container"
@@ -60,6 +62,7 @@ sudo docker run -d --name gateway_bot -p 8000:8000 \
  -e DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN \
  -e DISCORD_BOT_PUBLIC_KEY=$DISCORD_BOT_PUBLIC_KEY \
  -e REDIS_HOST=$REDIS_HOST \
+ --network my-network \
  nardoarevalo14/twitch_leagues_bot:latest \
  /bin/bash -c 'python gateway_bot.py'
 
@@ -74,5 +77,6 @@ sudo docker run -d --name celery_worker \
  -e DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN \
  -e DISCORD_BOT_PUBLIC_KEY=$DISCORD_BOT_PUBLIC_KEY \
  -e REDIS_HOST=$REDIS_HOST \
+ --network my-network \
  nardoarevalo14/twitch_leagues_bot:latest \
  /bin/bash -c 'aio_celery worker celery_worker:celery'

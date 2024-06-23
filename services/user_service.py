@@ -2,6 +2,7 @@ from domain.leagues import LeagueUser
 from domain.permissions import Permissions
 from util.discord_apis import add_guild_role, add_guild_role_to_member, get_guild_channels, delete_channel
 from domain.roles import Role
+from domain.leagues import Role as DbRole
 from repositories.user_repository import UserRepository
 from discord_interactions import InteractionResponseType
 
@@ -52,3 +53,6 @@ class UserService():
                 if channel['name'] == f"{body['member']['user']['username']}-register":
                     delete_channel(channel['id'])
                     break
+
+    async def get_role(self, name) -> DbRole:
+        return await self.user_repository.get_role(name)

@@ -7,43 +7,6 @@ Parameters:
     NoEcho: true
 
 Resources:
-  RabbitMQSecurityGroup:
-    Type: 'AWS::EC2::SecurityGroup'
-    Properties:
-      GroupDescription: 'Security group for RabbitMQ broker'
-      VpcId: 'vpc-067d20803efece1e3'
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 5671
-          ToPort: 5671
-          CidrIp: '0.0.0.0/0'
-        - IpProtocol: tcp
-          FromPort: 15671
-          ToPort: 15671
-          CidrIp: '0.0.0.0/0'
-
-  RabbitMQBroker:
-    Type: 'AWS::AmazonMQ::Broker'
-    Properties:
-      AutoMinorVersionUpgrade: true
-      BrokerName: 'myRabbitMQBroker-1'
-      DeploymentMode: 'SINGLE_INSTANCE'
-      EngineType: 'RabbitMQ'
-      EngineVersion: '3.8.23'
-      HostInstanceType: 'mq.t3.micro'
-      PubliclyAccessible: false
-      Users:
-        - Username: 'admin'
-          Password: !Ref RDSPASSWORD
-      SubnetIds:
-        - 'subnet-0edcb814af0d6a907'
-      SecurityGroups:
-        - !GetAtt RabbitMQSecurityGroup.GroupId
-      Logs:
-        General: true
-      Tags:
-        - Key: 'Name'
-          Value: 'myRabbitMQBroker'
 
   RDSSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
@@ -55,7 +18,6 @@ Resources:
           FromPort: 5432
           ToPort: 5432
           CidrIp: '0.0.0.0/0'
-
 
   RDSInstance:
     Type: 'AWS::RDS::DBInstance'
@@ -83,15 +45,6 @@ Resources:
         - 'subnet-03cd93093acf98fa6'
 
 Outputs:
-  RabbitMQBrokerEndpoint:
-    Description: "The endpoint address of the RabbitMQ broker"
-    Value: !Join
-      - ','
-      - !GetAtt RabbitMQBroker.AmqpEndpoints
-
-  RabbitMQBrokerArn:
-    Description: "The ARN of the RabbitMQ broker"
-    Value: !Ref RabbitMQBroker
 
   RDSInstanceEndpoint:
     Description: "The endpoint address of the RDS instance"
