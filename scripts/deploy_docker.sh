@@ -26,6 +26,7 @@ sudo docker stop discord_apis || true
 sudo docker rm discord_apis || true
 sudo docker stop gateway_bot || true
 sudo docker rm gateway_bot || true
+sudo docker stop rabbitmq || true
 sudo docker rm rabbitmq || true
 
 echo "pulling latest image"
