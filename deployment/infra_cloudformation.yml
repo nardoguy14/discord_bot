@@ -35,6 +35,7 @@ Resources:
                   - 'logs:*'
                   - 'ssm:*'
                   - 'mq:*'
+                  - 'rds:*'
                 Resource: '*'
 
   EC2InstanceProfile:
