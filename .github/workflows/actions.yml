@@ -100,11 +100,11 @@ jobs:
   
           if [[ "$STACK_EXISTS" == "nostack" ]]; then
             echo "Stack does not exist. Creating stack..."
-            aws cloudformation create-stack --stack-name $STACK_NAME --template-body file://$TEMPLATE_FILE --capabilities $CAPABILITIES
+            aws cloudformation create-stack --stack-name $STACK_NAME --template-body file://$TEMPLATE_FILE --parameters ParameterKey=RDSPASSWORD,ParameterValue="${{ secrets.RDS_PASSWORD }}" --capabilities $CAPABILITIES
             aws cloudformation wait stack-create-complete --stack-name $STACK_NAME
           else
             echo "Stack exists. Updating stack..."
-            aws cloudformation update-stack --stack-name $STACK_NAME --template-body file://$TEMPLATE_FILE --capabilities $CAPABILITIES 2>&1 && \
+            aws cloudformation update-stack --stack-name $STACK_NAME --template-body file://$TEMPLATE_FILE --parameters ParameterKey=RDSPASSWORD,ParameterValue="${{ secrets.RDS_PASSWORD }}" --capabilities $CAPABILITIES 2>&1 && \
             aws cloudformation wait stack-update-complete --stack-name $STACK_NAME 2>&1 || echo "update stack failed"
             exit 0
           fi
