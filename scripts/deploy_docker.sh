@@ -36,7 +36,7 @@ echo "pulling latest image"
 sudo docker pull nardoarevalo14/twitch_leagues_bot:latest
 
 echo "running api container"
-sudo docker run  --name discord_apis -p 80:8000 \
+sudo docker run -d --name discord_apis -p 80:8000 \
  -e POSTGRES_HOST=$POSTGRES_HOST \
  -e POSTGRES_DB=$POSTGRES_DB \
  -e POSTGRES_USER=$POSTGRES_USER \
