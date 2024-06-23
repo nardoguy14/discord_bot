@@ -60,7 +60,7 @@ Resources:
   RDSInstance:
     Type: 'AWS::RDS::DBInstance'
     Properties:
-      DBInstanceIdentifier: "discord-bot-rds-db"
+      DBInstanceIdentifier: "discord-bot-rds-db-1"
       DBName: 'tempo'
       MasterUsername: adminwhatup
       MasterUserPassword: !Ref RDSPASSWORD
@@ -70,7 +70,6 @@ Resources:
       VPCSecurityGroups:
         - !Ref RDSSecurityGroup
       DBSubnetGroupName: !Ref RDSSubnetGroup
-      BackupRetentionPeriod: 7
       MultiAZ: false
       PubliclyAccessible: true
       StorageType: 'gp2'
