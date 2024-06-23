@@ -28,6 +28,8 @@ sudo docker stop gateway_bot || true
 sudo docker rm gateway_bot || true
 sudo docker stop rabbitmq || true
 sudo docker rm rabbitmq || true
+sudo docker stop celery_worker || true
+sudo docker rm celery_worker || true
 
 echo "pulling latest image"
 # Pull the latest image
