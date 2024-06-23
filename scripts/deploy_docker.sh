@@ -16,6 +16,7 @@ export broker_id=$(echo "$broker_list" | jq -r '.BrokerSummaries[0].BrokerId')
 export broker_details=$(aws mq describe-broker --broker-id "$broker_id")
 export endpoint=$(echo "$broker_details" | jq -r '.BrokerInstances[0].Endpoints[0]')
 export cleaned_endpoint=${endpoint#*://}
+export cleaned_endpoint="${cleaned_endpoint%%:*}"
 export REDIS_HOST=$cleaned_endpoint
 
 USING_FAST_API=1
@@ -25,15 +26,15 @@ echo $DISCORD_BOT_PUBLIC_KEY
 
 echo "stopping containers"
 # Stop any existing container
-docker stop discord_apis || true
-docker rm discord_apis || true
+sudo docker stop discord_apis || true
+sudo docker rm discord_apis || true
 
 echo "pulling latest image"
 # Pull the latest image
-docker pull nardoarevalo14/twitch_leagues_bot:latest
+sudo docker pull nardoarevalo14/twitch_leagues_bot:latest
 
 echo "running api container"
-docker run -d --name discord_apis -p 8000:8000 \
+sudo docker run -d --name discord_apis -p 8000:8000 \
  -e POSTGRES_HOST=$POSTGRES_HOST \
  -e POSTGRES_DB=$POSTGRES_DB \
  -e POSTGRES_USER=$POSTGRES_USER \
