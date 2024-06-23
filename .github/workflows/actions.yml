@@ -72,11 +72,11 @@ jobs:
 
       - name: Run Alembic Revisions
         run: |
-          POSTGRES_HOST=$(aws rds describe-db-instances --db-instance-identifier discord-bot-rds-db --query "DBInstances[0].Endpoint.Address")
-          POSTGRES_HOST=$(echo ${POSTGRES_HOST//\"/})
-          POSTGRES_DB=tempo
-          POSTGRES_USER=adminwhatup
-          POSTGRES_PASSWORD=${{ secrets.RDS_PASSWORD }}
+          export POSTGRES_HOST=$(aws rds describe-db-instances --db-instance-identifier discord-bot-rds-db --query "DBInstances[0].Endpoint.Address")
+          export POSTGRES_HOST=$(echo ${POSTGRES_HOST//\"/})
+          export POSTGRES_DB=tempo
+          export POSTGRES_USER=adminwhatup
+          export POSTGRES_PASSWORD=${{ secrets.RDS_PASSWORD }}
           echo "installing requirements"
           pip install --no-cache-dir -r requirements.txt
           alembic upgrade head
