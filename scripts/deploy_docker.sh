@@ -6,10 +6,10 @@ export POSTGRES_DB=tempo
 export POSTGRES_USER=adminwhatup
 export POSTGRES_PASSWORD=$POSTGRES_PASSWORD # set by git actions to cloudformation to userdata in ec2
 
-export DISCORD_GUILD_ID=$(aws ssm get-parameter --name /MyApp/DISCORD_GUILD_ID --query "Parameter.Value" --output text)
-export DISCORD_APPLICATION_ID=$(aws ssm get-parameter --name /MyApp/DISCORD_APPLICATION_ID --query "Parameter.Value" --output text)
-export DISCORD_BOT_TOKEN=$(aws ssm get-parameter --name /MyApp/DISCORD_BOT_TOKEN --query "Parameter.Value" --output text)
-export DISCORD_BOT_PUBLIC_KEY=$(aws ssm get-parameter --name /MyApp/DISCORD_BOT_PUBLIC_KEY --query "Parameter.Value" --output text)
+export DISCORD_GUILD_ID=$(aws ssm get-parameter --name /MyApp/DISCORD_GUILD_ID --query "Parameter.Value" --with-decryption --output text)
+export DISCORD_APPLICATION_ID=$(aws ssm get-parameter --name /MyApp/DISCORD_APPLICATION_ID --query "Parameter.Value" --with-decryption --output text)
+export DISCORD_BOT_TOKEN=$(aws ssm get-parameter --name /MyApp/DISCORD_BOT_TOKEN --query "Parameter.Value" --with-decryption --output text)
+export DISCORD_BOT_PUBLIC_KEY=$(aws ssm get-parameter --name /MyApp/DISCORD_BOT_PUBLIC_KEY --query "Parameter.Value" --with-decryption  --output text)
 
 export broker_list=$(aws mq list-brokers)
 export broker_id=$(echo "$broker_list" | jq -r '.BrokerSummaries[0].BrokerId')
@@ -19,7 +19,7 @@ export cleaned_endpoint=${endpoint#*://}
 export cleaned_endpoint="${cleaned_endpoint%%:*}"
 export REDIS_HOST=$cleaned_endpoint
 
-USING_FAST_API=1
+export USING_FAST_API=1
 echo "NARDO LOOK HERE"
 echo $REDIS_HOST
 echo $DISCORD_BOT_PUBLIC_KEY
@@ -34,7 +34,7 @@ echo "pulling latest image"
 sudo docker pull nardoarevalo14/twitch_leagues_bot:latest
 
 echo "running api container"
-sudo docker run -d --name discord_apis -p 8000:8000 \
+sudo docker run  --name discord_apis -p 80:8000 \
  -e POSTGRES_HOST=$POSTGRES_HOST \
  -e POSTGRES_DB=$POSTGRES_DB \
  -e POSTGRES_USER=$POSTGRES_USER \
