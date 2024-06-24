@@ -1,3 +1,5 @@
+from typing import List
+
 from domain.leagues import LeagueUser
 from domain.permissions import Permissions
 from util.discord_apis import add_guild_role, add_guild_role_to_member, get_guild_channels, delete_channel
@@ -25,6 +27,9 @@ class UserService():
 
     async def get_league_user(self, discord_id, league_id) -> LeagueUser:
         return await self.user_repository.get_league_user(discord_id, league_id)
+
+    async def get_league_users(self, league_id) -> List[LeagueUser]:
+        return await self.user_repository.get_league_users(league_id)
 
     async def update_league_user(self, league_user: LeagueUser, updates) -> LeagueUser:
         return await self.user_repository.update_league_user(league_user, updates)

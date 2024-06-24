@@ -21,5 +21,8 @@ class UserRepository():
     async def get_league_user(self, discord_id, league_id) -> LeagueUser:
         return await LeagueUser.query.where(and_(LeagueUser.user_id == discord_id, LeagueUser.league_id == league_id)).gino.first()
 
+    async def get_league_users(self, league_id) -> LeagueUser:
+        return await LeagueUser.query.where(LeagueUser.league_id == league_id).gino.all()
+
     async def update_league_user(self, league_user: LeagueUser, updates):
         return await league_user.update(**updates).apply()

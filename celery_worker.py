@@ -12,7 +12,8 @@ from repositories.matches_repository import MatchesRepository
 from services.matches_service import MatchesService
 from services.user_service import UserService
 from util.discord_apis import (create_channel, get_role, delete_channel, edit_message,
-                               modify_channel_permissions, get_guild_channel, create_message)
+                               modify_channel_permissions, get_guild_channel, create_message, get_guild_channels,
+                               get_channel_messages)
 from repositories.leagues_repository import LeaguesRepository
 import os
 from util.gu_apis import get_matches
@@ -232,6 +233,28 @@ New elo scores are:\n
     Player2 {player_2.gu_user_name}: {player_2_new_elo}
     """
     create_message(discord_channel_id, message)
+
+    await update_standings(league_user_1.league_id, discord_channel_id)
+
+
+async def update_standings(league_id, discord_channel_id):
+    channel = get_guild_channel(GUILD_ID, discord_channel_id)
+    parent_id_needed = channel['parent_id']
+    channels = get_guild_channels(GUILD_ID)
+    for channel in channels:
+        if channel['parent_id'] == parent_id_needed and channel['name'] == 'standings':
+            messages = get_channel_messages(channel['id'])
+            users = await users_service.get_league_users(league_id)
+            sorted_users = sorted(users, key=lambda x: x.ranking)[::-1]
+            content = "Current Standings\n\n"
+            for index, user in enumerate(sorted_users):
+                content += f"{index+1}: {user.user_id}: {round(user.ranking, 3)}\n"
+            if len(messages) > 0:
+                pass
+                edit_message(channel['id'], messages[0]['id'], content)
+            else:
+                create_message(channel['id'], content)
+            return
 
 
 async def get_users_who_match(ranking, disparity, player_id):
