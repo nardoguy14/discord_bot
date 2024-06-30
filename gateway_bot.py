@@ -31,4 +31,16 @@ async def on_raw_reaction_add(payload):
         create_secret_channel(GUILD_ID, everyone_role['id'],
                               f"{payload.member.name}-register", [payload.member.id])
 
+# Event handler for when the bot joins a new guild
+@client.event
+async def on_guild_join(guild):
+    guild_info = (
+        f"Joined a new guild:\n"
+        f"Guild Name: {guild.name}\n"
+        f"Guild ID: {guild.id}\n"
+        f"Guild Owner: {guild.owner}\n"
+        f"Guild Member Count: {guild.member_count}\n"
+    )
+    print(guild_info)
+
 client.run(TOKEN)
