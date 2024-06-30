@@ -138,7 +138,11 @@ jobs:
 
       - name: Set Parameter Variables
         run: |
-          aws ssm put-parameter --name /MyApp/DISCORD_GUILD_ID --value "${{ vars.DISCORD_GUILD_ID }}" --type SecureString --overwrite
+          current_guild_id=$(aws ssm get-parameter --name /MyApp/DISCORD_GUILD_ID | jq '.Parameter.Value')
+          if [[ "${{ vars.DISCORD_GUILD_ID }}" == $current_guild_id ]]; then
+            echo "Setting new value for GUILD_ID"
+            aws ssm put-parameter --name /MyApp/DISCORD_GUILD_ID --value "${{ vars.DISCORD_GUILD_ID }}" --type SecureString --overwrite
+          fi
           aws ssm put-parameter --name /MyApp/DISCORD_APPLICATION_ID --value "${{ vars.DISCORD_APPLICATION_ID }}" --type SecureString --overwrite
           aws ssm put-parameter --name /MyApp/DISCORD_BOT_TOKEN --value "${{ secrets.DISCORD_BOT_TOKEN }}" --type SecureString --overwrite
           aws ssm put-parameter --name /MyApp/DISCORD_BOT_PUBLIC_KEY --value "${{ vars.DISCORD_BOT_PUBLIC_KEY }}" --type SecureString --overwrite
