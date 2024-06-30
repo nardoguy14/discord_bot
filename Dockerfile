@@ -9,6 +9,7 @@ WORKDIR /
 COPY /domain /domain
 COPY /repositories /repositories
 COPY /services /services
+COPY /scripts /scripts
 COPY /util /util
 COPY requirements.txt /
 COPY main.py /
