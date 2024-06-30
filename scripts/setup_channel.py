@@ -1,5 +1,6 @@
 import os
 
+from repositories.base_repository import postgres_base_repo
 from util.discord_apis import (get_guild_channels, modify_channel_permissions,
                                create_channel, create_message, pin_message, get_role)
 from domain.roles import Role
@@ -14,6 +15,7 @@ ADMIN_ACTIONS_CHANNEL = "admin-actions"
 DISPUTES = 'disputes'
 
 async def main():
+    await postgres_base_repo.connect()
     user_service = UserService()
     home_users_role = await user_service.get_role(Role.HOMIE_USERS.name)
     admin_user_role = await user_service.get_role(Role.HOMIE_ADMIN.name)
@@ -73,3 +75,8 @@ async def main():
                 {'id': basic_role_id, 'type': 0, 'allow': "1024"}
             ]
             modify_channel_permissions(channel['id'], permissions)
+
+
+import asyncio
+loop = asyncio.get_event_loop()
+loop.run_until_complete(main())

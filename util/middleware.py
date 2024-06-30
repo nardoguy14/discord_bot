@@ -58,8 +58,8 @@ def check_role():
             role_names = []
             for role_id in role_ids:
                 role = await user_repository.get_role_by_id(role_id)
-                role_names.append(role.name)
-            import pprint
+                if role:
+                    role_names.append(role.name)
             pprint.pprint(role_names)
             pprint.pprint(body)
 
