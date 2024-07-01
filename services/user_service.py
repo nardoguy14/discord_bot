@@ -1,4 +1,5 @@
 from typing import List
+import os
 
 from domain.leagues import LeagueUser
 from domain.permissions import Permissions
@@ -9,7 +10,7 @@ from repositories.user_repository import UserRepository
 from discord_interactions import InteractionResponseType
 
 
-GUILD_ID = "830235184946872340"
+GUILD_ID = os.environ.get("DISCORD_GUILD_ID")
 
 
 class UserService():
