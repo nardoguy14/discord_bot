@@ -247,6 +247,7 @@ class LeagueService():
 
     async def edit_league_info(self, league_name):
         league = await self.leagues_repository.get_league(league_name=league_name)
+        league = league[0]
         channels = get_guild_channels(GUILD_ID)
         info_channel = get_child_league_channel(channels, league_name, 'info')
         messages = get_channel_messages(info_channel['id'])
