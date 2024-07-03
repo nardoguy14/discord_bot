@@ -8,9 +8,10 @@ from discord_interactions import InteractionResponseType
 from domain.leagues import User, League
 from repositories.leagues_repository import LeaguesRepository
 from services.user_service import UserService
-from util.discord_apis import delete_channel, send_deferred_final_message, modify_channel
+from util.discord_apis import delete_channel, send_deferred_final_message, modify_channel, edit_message, \
+    get_child_league_channel
 from util.discord_apis import get_role, create_channel, get_guild_channel_by_name, create_message, get_guild_channel, \
-    get_guild_channels
+    get_guild_channels, get_channel_messages
 from util.gu_apis import get_user_rank
 from util.utils import generate_random_emoji
 from celery_worker import celery, add
@@ -24,6 +25,11 @@ ANNOUNCEMENTS_CHANNEL = get_guild_channel_by_name(GUILD_ID, "announcements")
 class LeagueService():
     leagues_repository = LeaguesRepository()
     user_service = UserService()
+
+    def generate_league_info_string(self, name, kind, start_date, end_date, max_plays_per_week):
+        info_message = f"League `{name}` \nkind: `{kind}`\nstarts `{start_date}`\nends `{end_date}`\nmax plays of `{max_plays_per_week}` per week."
+        return info_message
+
 
     async def create_league_interaction(self, body, background_tasks):
 
@@ -44,13 +50,15 @@ class LeagueService():
             ]
             category_channel = create_channel(GUILD_ID, f"{name}-League", permissions, guild_type=4, category=True)
 
-            create_channel(GUILD_ID, "Info", permissions, parent_id=category_channel['id'])
+            info_channel = create_channel(GUILD_ID, "Info", permissions, parent_id=category_channel['id'])
             create_channel(GUILD_ID, "General Chat", permissions, parent_id=category_channel['id'])
             create_channel(GUILD_ID, "Standings", permissions, parent_id=category_channel['id'])
             create_channel(GUILD_ID, "Matchmaking", permissions, parent_id=category_channel['id'])
 
-            message = f"""New league `{name}` \nkind: `{kind}`\nstarts `{start_date}`\nends `{end_date}`\nmax plays of `{max_plays_per_week}` per week."""
-            create_message(ANNOUNCEMENTS_CHANNEL['id'], message)
+            announcement_message = f"""New league `{name}` \nkind: `{kind}`\nstarts `{start_date}`\nends `{end_date}`\nmax plays of `{max_plays_per_week}` per week."""
+            info_message = self.generate_league_info_string(name, kind, start_date, end_date, max_plays_per_week)
+            create_message(ANNOUNCEMENTS_CHANNEL['id'], announcement_message)
+            create_message(info_channel['id'], info_message)
             await self.leagues_repository.create_league(name, kind,
                                                         datetime.strptime(start_date, '%Y-%m-%d'),
                                                         datetime.strptime(end_date, '%Y-%m-%d'),
@@ -178,6 +186,8 @@ class LeagueService():
                                               start_date=start_date,
                                               end_date=end_date)
 
+        await self.edit_league_info(league_name)
+
         return {
             'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             'data': {
@@ -195,6 +205,7 @@ class LeagueService():
         modify_channel(channel['id'], {'name': f"{new_league_name}-League"})
         await self.leagues_repository.update_league(league_name=league_name,
                                               new_name=new_league_name)
+        await self.edit_league_info(league_name)
         return {
             'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             'data': {
@@ -210,6 +221,7 @@ class LeagueService():
         max_plays = body['data']['options'][1]['value']
         await self.leagues_repository.update_league(league_name=league_name,
                                               max_plays=max_plays)
+        await self.edit_league_info(league_name)
         return {
             'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             'data': {
@@ -225,12 +237,23 @@ class LeagueService():
         max_disparity = body['data']['options'][1]['value']
         await self.leagues_repository.update_league(league_name=league_name,
                                                     max_disparity=max_disparity)
+        await self.edit_league_info(league_name)
         return {
             'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             'data': {
                 'content': f'League `{league_name}` max disparity updated to `{max_disparity}`. ~ {generate_random_emoji()}'
             }
         }
+
+    async def edit_league_info(self, league_name):
+        league = await self.leagues_repository.get_league(league_name=league_name)
+        channels = get_guild_channels(GUILD_ID)
+        info_channel = get_child_league_channel(channels, league_name, 'info')
+        messages = get_channel_messages(info_channel['id'])
+        content = self.generate_league_info_string(league_name, league.kind, league.start_date,
+                                                   league.end_date, league.max_plays_per_week)
+        edit_message(info_channel['id'], messages[0]['id'], content)
+        return
 
     async def matchmake(self, body):
         async with celery.setup():

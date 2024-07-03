@@ -283,3 +283,16 @@ def send_deferred_final_message(interaction_token, content):
     response = requests.patch(full_url, json=payload, headers=headers)
     pprint(response.json())
     response.raise_for_status()
+
+
+def get_main_league_channel(channels, league_name):
+    for channel in channels:
+        if channel['name'] == f"{league_name}-league":
+            return channel
+
+
+def get_child_league_channel(channels, league_name, child_channel):
+    parent_channel = get_main_league_channel(channels, league_name)
+    for channel in channels:
+        if channel['parent_id'] == parent_channel['id'] and channel['name'] == child_channel:
+            return channel
