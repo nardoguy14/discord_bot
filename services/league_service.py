@@ -172,7 +172,7 @@ class LeagueService():
                 start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
                 end_date = None
             elif 'end-date' == data[1]['name']:
-                end_date_str = body['data']['options'][2]['value']
+                end_date_str = body['data']['options'][1]['value']
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
                 start_date = None
         else:
