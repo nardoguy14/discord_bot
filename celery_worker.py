@@ -210,7 +210,7 @@ async def handle_finished_game(discord_channel_id):
         change_in_elo = (1.0/ (1.3 + abs(league_user_1.ranking - league_user_2.ranking)))
         player_2_new_elo = league_user_2.ranking + change_in_elo
         player_1_new_elo = league_user_1.ranking - change_in_elo
-    elif league_user_2 < league_user_1.ranking and player_2_won:
+    elif league_user_2.ranking < league_user_1.ranking and player_2_won:
         change_in_elo_winner = (abs(league_user_1.ranking - league_user_2.ranking)/ (0.75 + abs(league_user_1.ranking - league_user_2.ranking)))
         change_in_elo_loser = (abs(league_user_1.ranking - league_user_2.ranking)/ (1.0 + abs(league_user_1.ranking - league_user_2.ranking)))
         player_2_new_elo = league_user_2.ranking + change_in_elo_winner
@@ -247,8 +247,9 @@ async def update_standings(league_id, discord_channel_id):
             users = await users_service.get_league_users(league_id)
             sorted_users = sorted(users, key=lambda x: x.ranking)[::-1]
             content = "Current Standings\n\n"
-            for index, user in enumerate(sorted_users):
-                content += f"{index+1}: {user.user_id}: {round(user.ranking, 3)}\n"
+            for index, league_user in enumerate(sorted_users):
+                user = await users_service.get_user_by_discord_id(league_user.user_id)
+                content += f"{index+1}: {user.gu_user_name}: {round(league_user.ranking, 3)}\n"
             if len(messages) > 0:
                 pass
                 edit_message(channel['id'], messages[0]['id'], content)
