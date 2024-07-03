@@ -287,7 +287,7 @@ def send_deferred_final_message(interaction_token, content):
 
 def get_main_league_channel(channels, league_name):
     for channel in channels:
-        if channel['name'] == f"{league_name}-league":
+        if channel['name'] == f"{league_name}-League":
             return channel
 
 
