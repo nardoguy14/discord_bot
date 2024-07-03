@@ -68,6 +68,8 @@ sudo docker run -d --name gateway_bot -p 8000:8000 \
  nardoarevalo14/twitch_leagues_bot:latest \
  /bin/bash -c 'python gateway_bot.py'
 
+sleep 10
+
 echo "running celery container"
 sudo docker run -d --name celery_worker \
  -e POSTGRES_HOST=$POSTGRES_HOST \

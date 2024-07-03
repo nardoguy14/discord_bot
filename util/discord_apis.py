@@ -293,6 +293,10 @@ def get_main_league_channel(channels, league_name):
 
 def get_child_league_channel(channels, league_name, child_channel):
     parent_channel = get_main_league_channel(channels, league_name)
+    print("parent channel")
+    print(parent_channel)
     for channel in channels:
+        print("channel")
+        print(channel)
         if 'parent_id' in channel and channel['parent_id'] == parent_channel['id'] and channel['name'] == child_channel:
             return channel
