@@ -27,6 +27,8 @@ sudo docker stop rabbitmq || true
 sudo docker rm rabbitmq || true
 sudo docker stop celery_worker || true
 sudo docker rm celery_worker || true
+docker rmi $(docker images -q)
+
 
 echo "pulling latest image"
 # Pull the latest image
