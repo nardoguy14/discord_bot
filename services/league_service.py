@@ -247,6 +247,8 @@ class LeagueService():
         allowed_opt = self.check_channel_allowed_for_action(body)
         if allowed_opt:
             return allowed_opt
+        print("updating disparity")
+        pprint.pprint(body)
         league_name = body['data']['options'][0]['value']
         max_disparity = body['data']['options'][1]['value']
         await self.leagues_repository.update_league(league_name=league_name,
