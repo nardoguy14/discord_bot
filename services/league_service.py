@@ -211,7 +211,15 @@ class LeagueService():
             return allowed_opt
         league_name = body['data']['options'][0]['value']
         new_league_name = body['data']['options'][1]['value']
+
         channel = get_guild_channel_by_name(GUILD_ID, f"{league_name}-League")
+        if channel == None:
+            return {
+                'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                'data': {
+                    'content': f'League: `{league_name}` not found'
+                }
+            }
         modify_channel(channel['id'], {'name': f"{new_league_name}-League"})
         await self.leagues_repository.update_league(league_name=league_name,
                                               new_name=new_league_name)
