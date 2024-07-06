@@ -223,9 +223,9 @@ class LeagueService():
         modify_channel(channel['id'], {'name': f"{new_league_name}-League"})
         await self.leagues_repository.update_league(league_name=league_name,
                                               new_name=new_league_name)
-        await self.message_edited_league_info_to_info_channel(league_name)
+        await self.message_edited_league_info_to_info_channel(new_league_name)
         annoucement_message = f"League name for league: `{league_name}` has been changed to: `{new_league_name}`"
-        self.message_annoucement_channel(league_name, annoucement_message)
+        self.message_annoucement_channel(new_league_name, annoucement_message)
         return {
             'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             'data': {
