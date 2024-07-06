@@ -148,6 +148,9 @@ class LeagueService():
             send_deferred_final_message(body['token'],
                                         f'League `{league_name}`deleted~ {generate_random_emoji()}')
         background_tasks.add_task(handle, guild_id, body)
+        league_name = body['data']['options'][0]['value'].lower()
+        annoucement_message = (f"League: `{league_name}` has been deleted")
+        self.message_annoucement_channel(league_name, annoucement_message)
         return {
             'type': 5  # 5 indicates a deferred response
         }
@@ -171,23 +174,30 @@ class LeagueService():
                 start_date_str = body['data']['options'][1]['value']
                 start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
                 end_date = None
+                annoucement_message = (f"League date for league: `{league_name}` has been changed to: "
+                                       f"start_date `{start_date_str}`")
+                self.message_annoucement_channel(league_name, annoucement_message)
             elif 'end-date' == data[1]['name']:
                 end_date_str = body['data']['options'][1]['value']
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
                 start_date = None
+                annoucement_message = (f"League date for league: `{league_name}` has been changed to: "
+                                       f"end_date `{end_date_str}`")
+                self.message_annoucement_channel(league_name, annoucement_message)
         else:
             start_date_str = body['data']['options'][1]['value']
             start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
 
             end_date_str = body['data']['options'][2]['value']
             end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
-
+            annoucement_message = (f"League dates for league: `{league_name}` has been changed to: "
+                                   f"start_date `{start_date_str}` end_date `{end_date_str}`")
+            self.message_annoucement_channel(league_name, annoucement_message)
         await self.leagues_repository.update_league(league_name=league_name,
                                               start_date=start_date,
                                               end_date=end_date)
 
-        await self.edit_league_info(league_name)
-
+        await self.message_edited_league_info_to_info_channel(league_name)
         return {
             'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             'data': {
@@ -205,7 +215,9 @@ class LeagueService():
         modify_channel(channel['id'], {'name': f"{new_league_name}-League"})
         await self.leagues_repository.update_league(league_name=league_name,
                                               new_name=new_league_name)
-        await self.edit_league_info(league_name)
+        await self.message_edited_league_info_to_info_channel(league_name)
+        annoucement_message = f"League name for league: `{league_name}` has been changed to: `{new_league_name}`"
+        self.message_annoucement_channel(league_name, annoucement_message)
         return {
             'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             'data': {
@@ -221,7 +233,9 @@ class LeagueService():
         max_plays = body['data']['options'][1]['value']
         await self.leagues_repository.update_league(league_name=league_name,
                                               max_plays=max_plays)
-        await self.edit_league_info(league_name)
+        await self.message_edited_league_info_to_info_channel(league_name)
+        annoucement_message = f"Max plays per week for league: `{league_name}` has been changed to: `{max_plays}`"
+        self.message_annoucement_channel(league_name, annoucement_message)
         return {
             'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             'data': {
@@ -237,7 +251,9 @@ class LeagueService():
         max_disparity = body['data']['options'][1]['value']
         await self.leagues_repository.update_league(league_name=league_name,
                                                     max_disparity=max_disparity)
-        await self.edit_league_info(league_name)
+        await self.message_edited_league_info_to_info_channel(league_name)
+        annoucement_message = f"Disparity for league: `{league_name}` has been changed to: `{max_disparity}`"
+        self.message_annoucement_channel(league_name, annoucement_message)
         return {
             'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             'data': {
@@ -245,7 +261,7 @@ class LeagueService():
             }
         }
 
-    async def edit_league_info(self, league_name):
+    async def message_edited_league_info_to_info_channel(self, league_name):
         league = await self.leagues_repository.get_league(league_name=league_name)
         league = league[0]
         channels = get_guild_channels(GUILD_ID)
@@ -255,6 +271,10 @@ class LeagueService():
                                                    league.end_date, league.max_plays_per_week)
         edit_message(info_channel['id'], messages[0]['id'], content)
         return
+
+    def message_annoucement_channel(self, league_name, annoucement_message):
+        announcement_channel = get_guild_channel_by_name(GUILD_ID, "announcements")
+        create_message(announcement_channel['id'], annoucement_message)
 
     async def matchmake(self, body):
         async with celery.setup():
