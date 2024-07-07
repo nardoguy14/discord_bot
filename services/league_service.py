@@ -76,7 +76,8 @@ class LeagueService():
             return not_allowed_opt
 
         league_name = body['data']['options'][0]['value'].lower()
-        league = await self.leagues_repository.get_league(league_name)
+        leagues = await self.leagues_repository.get_league(league_name)
+        league = leagues[0]
         if league == None:
             return {
                 'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
