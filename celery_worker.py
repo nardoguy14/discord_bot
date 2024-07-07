@@ -169,9 +169,23 @@ async def ask_for_decks(discord_channel_id):
 
     if codes_set:
         await handle_finished_game(discord_channel_id)
+        await auto_close_channel.delay(discord_channel_id)
     else:
         create_message(discord_channel_id, message="Decks have not been submitted successfully. Please submit them. Waiting again.")
         await ask_for_decks.delay(discord_channel_id)
+
+
+@celery.task(name='auto-close-channel', ignore_result=True)
+async def auto_close_channel(discord_channel_id):
+    countdown = 60 * 2
+    message = create_message(discord_channel_id, f"Channel will close in {countdown} seconds.")
+    while countdown > 0:
+        await asyncio.sleep(1)
+        print(f"will auto close in {countdown}")
+        countdown -= 1
+        edit_message(discord_channel_id, message['id'], f"Channel will close in {countdown} seconds.")
+    delete_channel(discord_channel_id)
+
 
 async def handle_finished_game(discord_channel_id):
     match = await matches_repository.get_match_by_discord_id(discord_channel_id)
