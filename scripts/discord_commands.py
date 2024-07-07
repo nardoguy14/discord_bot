@@ -205,6 +205,21 @@ SUBMIT_DECK = {
     ]
 }
 
+GET_LEAGUE = {
+    "name": "get-league",
+    "type": 1,
+    "description": "Retrieves details of league",
+    "options": [
+        {
+            "name": "league-name",
+            "description": "Name of the league youre trying to get details about.",
+            "type": 3,
+            "required": True,
+        },
+    ]
+}
+
+
 DISPUTE = {
     "name": "dispute",
     "type": 1,
@@ -213,6 +228,7 @@ DISPUTE = {
 
 data = [
     CREATE_LEAGUE,
+    GET_LEAGUE,
     JOIN_LEAGUE,
     REGISTER_LEAGUE,
     DELETE_LEAGUE,

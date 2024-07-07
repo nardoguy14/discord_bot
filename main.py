@@ -33,6 +33,8 @@ async def interactions(req: Request, backgorund_tasks: BackgroundTasks):
         name = body['data']['name']
         if name == 'create-league':
             return await league_service.create_league_interaction(body, backgorund_tasks)
+        elif name == 'get-league':
+            return await league_service.get_league(body)
         elif name == 'join-league':
             return await league_service.join_league(body)
         elif name == 'register':

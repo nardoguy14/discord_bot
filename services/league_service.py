@@ -30,12 +30,11 @@ class LeagueService():
         info_message = f"League `{name}` \nkind: `{kind}`\nstarts `{start_date}`\nends `{end_date}`\nmax plays of `{max_plays_per_week}` per week."
         return info_message
 
-
     async def create_league_interaction(self, body, background_tasks):
 
-        allowed_opt = self.check_channel_allowed_for_action(body)
-        if allowed_opt:
-            return allowed_opt
+        not_allowed_opt = self.check_channel_allowed_for_action(body)
+        if not_allowed_opt:
+            return not_allowed_opt
 
         async def handle(body):
             name = body['data']['options'][0]['value']
@@ -70,6 +69,30 @@ class LeagueService():
         return {
             'type': 5  # 5 indicates a deferred response
         }
+
+    async def get_league(self, body):
+        not_allowed_opt = self.check_channel_allowed_for_action(body)
+        if not_allowed_opt:
+            return not_allowed_opt
+
+        league_name = body['data']['options'][0]['value'].lower()
+        league = await self.leagues_repository.get_league(league_name)
+        if league == None:
+            return {
+                'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                'data': {
+                    'content': f"This league: `{league_name}` does not exist."
+                }
+            }
+        message = self.generate_league_info_string(league_name, league.kind, league.start_date,
+                                         league.end_date, league.max_plays_per_week)
+        return {
+            'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            'data': {
+                'content': message
+            }
+        }
+
 
     async def join_league(self, body):
         if body['channel']['parent_id'] is not None:
