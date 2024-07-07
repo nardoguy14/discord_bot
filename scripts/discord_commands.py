@@ -80,7 +80,7 @@ REGISTER_LEAGUE = {
             "name": "wallet_address",
             "description": "Wallet address that will be used to pay for league.",
             "type": 3,
-            "required": False
+            "required": True
         }
     ]
 }
