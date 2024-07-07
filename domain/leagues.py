@@ -41,3 +41,4 @@ class User(BaseModel):
     discord_id = db.Column(db.String, nullable=False)
     gu_user_name = db.Column(db.String, nullable=False)
     gu_user_id = db.Column(db.String, nullable=False)
+    wallet_address = db.Column(db.String, nullable=True)

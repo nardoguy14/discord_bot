@@ -46,6 +46,7 @@ class UserService():
         discord_user_id = body['member']['user']['id']
         gu_user_name = body['data']['options'][0]['value']
         gu_user_id = body['data']['options'][1]['value']
+        wallet_address = body['data']['options'][2]['value']
         user_opt: list = await self.user_repository.get_user(discord_user_id)
         if user_opt:
             return {
@@ -57,7 +58,8 @@ class UserService():
         else:
             role = await self.user_repository.get_role(Role.HOMIE_USERS.name)
             print(role)
-            await self.user_repository.create_user(discord_id=discord_user_id, gu_user_name=gu_user_name, gu_user_id=gu_user_id)
+            await self.user_repository.create_user(discord_id=discord_user_id, gu_user_name=gu_user_name,
+                                                   gu_user_id=gu_user_id, wallet_address=wallet_address)
             add_guild_role_to_member(GUILD_ID, discord_user_id, role.role_id)
             channels = get_guild_channels(GUILD_ID)
             for channel in channels:

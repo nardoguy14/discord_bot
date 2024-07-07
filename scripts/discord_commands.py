@@ -49,7 +49,7 @@ CREATE_LEAGUE = {
             "description": "Whats the max level difference between two players?",
             "type": 3,
             "required": True,
-        },
+        }
     ]
 }
 
@@ -75,6 +75,12 @@ REGISTER_LEAGUE = {
             "description": "Whats your Guardians Unchained id?",
             "type": 3,
             "required": True,
+        },
+        {
+            "name": "wallet_address",
+            "description": "Wallet address that will be used to pay for league.",
+            "type": 3,
+            "required": False
         }
     ]
 }
