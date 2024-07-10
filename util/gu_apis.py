@@ -37,5 +37,6 @@ def get_matches(user_id):
     }
     endpoint = "/match"
     response = requests.get(BASE_HOST + endpoint, params=params)
+    print(f"match results for {user_id}")
     pprint(response.json())
     return response.json()

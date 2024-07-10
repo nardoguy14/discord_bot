@@ -6,7 +6,7 @@ import contextlib
 
 from discord_interactions import InteractionResponseType
 from domain.leagues import LeagueUser, User
-from domain.matches import Match
+from domain.matches import Match, MatchStatus
 from repositories.base_repository import postgres_base_repo
 from repositories.matches_repository import MatchesRepository
 from services.matches_service import MatchesService
@@ -112,6 +112,7 @@ async def ready_up(league_id, discord_channel_id):
     while countdown > 0:
         if countdown % 10 == 0:
             match = await matches_repository.get_match_by_discord_id(discord_channel_id)
+            await matches_repository.set_match_status(match, MatchStatus.WAITING_READY_UP)
             if match.ready_up_1 and match.ready_up_2:
                 join_code = uuid.uuid4().hex[:10]
                 create_message(discord_channel_id, f"You can now join the game with code: `{join_code}`")
@@ -129,6 +130,8 @@ async def ready_up(league_id, discord_channel_id):
 
 @celery.task(name='check-for-match-completion', ignore_result=True)
 async def check_for_match_completion(discord_channel_id):
+    match = await matches_repository.get_match_by_discord_id(discord_channel_id)
+    await matches_repository.set_match_status(match, MatchStatus.MATCH_BEING_PLAYED)
     countdown = 60 * 5
     while countdown > 0:
         await asyncio.sleep(1)
@@ -153,6 +156,8 @@ async def check_for_match_completion(discord_channel_id):
 
 @celery.task(name='ask-for-decks', ignore_result=True)
 async def ask_for_decks(discord_channel_id):
+    match = await matches_repository.get_match_by_discord_id(discord_channel_id)
+    await matches_repository.set_match_status(match, MatchStatus.WAITING_FOR_DECKS)
     countdown = 60 * 5
     codes_set = False
     create_message(discord_channel_id, "Please submit decks now using `/submit-deck`")
@@ -177,6 +182,8 @@ async def ask_for_decks(discord_channel_id):
 
 @celery.task(name='auto-close-channel', ignore_result=True)
 async def auto_close_channel(discord_channel_id):
+    match = await matches_repository.get_match_by_discord_id(discord_channel_id)
+    await matches_repository.set_match_status(match, MatchStatus.GAME_FINISHED)
     countdown = 60 * 2
     message = create_message(discord_channel_id, f"Channel will close in {countdown} seconds.")
     while countdown > 0:

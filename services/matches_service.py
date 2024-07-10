@@ -1,6 +1,6 @@
 import os
 
-from domain.matches import Match
+from domain.matches import Match, MatchStatus
 from repositories.matches_repository import MatchesRepository
 from discord_interactions import InteractionResponseType
 
@@ -26,6 +26,13 @@ class MatchesService:
                 }
             }
         match: Match = await self.matches_repository.get_match_by_discord_id(discord_channel_id)
+        if match.status != MatchStatus.WAITING_READY_UP:
+            return {
+                'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                'data': {
+                    'content': f'Match not in state to ready up'
+                }
+            }
         await self.matches_repository.set_ready(match, player_id)
 
         result = {
@@ -128,6 +135,14 @@ class MatchesService:
         }
 
     async def save_deck(self, discord_channel_id, player_id, deck_code, body):
+        match = await self.matches_repository.get_match_by_discord_id(discord_channel_id)
+        if match.status != MatchStatus.WAITING_FOR_DECKS:
+            return {
+                'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                'data': {
+                    'content': f'Match not in state to receive deck codes'
+                }
+            }
         channel = body['channel']
         if '🃏matchmaking-' not in channel['name']:
             # cant do that in this channel
@@ -230,3 +245,6 @@ class MatchesService:
                 'content': '🚨Dispute filed!🚨'
             }
         }
+
+    async def get_latest_match_by_discord_user_id(self, discord_user_id) -> Match:
+        return await self.matches_repository.get_latest_match_by_discord_user_id(discord_user_id)

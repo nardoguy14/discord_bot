@@ -6,7 +6,9 @@ from datetime import datetime
 from discord_interactions import InteractionResponseType
 
 from domain.leagues import User, League
+from domain.matches import MatchStatus
 from repositories.leagues_repository import LeaguesRepository
+from services.matches_service import MatchesService
 from services.user_service import UserService
 from util.discord_apis import delete_channel, send_deferred_final_message, modify_channel, edit_message, \
     get_child_league_channel
@@ -25,6 +27,7 @@ ANNOUNCEMENTS_CHANNEL = get_guild_channel_by_name(GUILD_ID, "announcements")
 class LeagueService():
     leagues_repository = LeaguesRepository()
     user_service = UserService()
+    matches_service = MatchesService()
 
     def generate_league_info_string(self, name, kind, start_date, end_date, max_plays_per_week):
         info_message = f"League `{name}` \nkind: `{kind}`\nstarts `{start_date}`\nends `{end_date}`\nmax plays of `{max_plays_per_week}` per week."
@@ -311,6 +314,15 @@ class LeagueService():
         create_message(announcement_channel['id'], annoucement_message)
 
     async def matchmake(self, body):
+        player_id = body['member']['user']['id']
+        existing_match = await self.matches_service.get_latest_match_by_discord_user_id(player_id)
+        if existing_match and existing_match.status != MatchStatus.GAME_FINISHED:
+            return {
+                'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                'data': {
+                    'content': f'Already match making!'
+                }
+            }
         async with celery.setup():
             channel = body['channel']
             if channel['name'] != 'matchmaking':

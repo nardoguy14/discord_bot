@@ -31,14 +31,11 @@ async def interactions(req: Request, backgorund_tasks: BackgroundTasks):
     print(body)
     if t == InteractionType.APPLICATION_COMMAND:
         name = body['data']['name']
+        # admin
         if name == 'create-league':
             return await league_service.create_league_interaction(body, backgorund_tasks)
         elif name == 'get-league':
             return await league_service.get_league(body)
-        elif name == 'join-league':
-            return await league_service.join_league(body)
-        elif name == 'register':
-            return await user_service.register_user(body)
         elif name == 'delete-league':
             return await league_service.delete_league(GUILD_ID, body, backgorund_tasks)
         elif name == 'update-league-dates':
@@ -49,6 +46,11 @@ async def interactions(req: Request, backgorund_tasks: BackgroundTasks):
             return await league_service.update_league_max_plays(body)
         elif name == 'update-league-rank-disparity':
             return await league_service.update_league_max_disparity(body)
+        # user
+        elif name == 'join-league':
+            return await league_service.join_league(body)
+        elif name == 'register':
+            return await user_service.register_user(body)
         elif name == 'match-make':
             return await league_service.matchmake(body)
         elif name == 'ready-up':
