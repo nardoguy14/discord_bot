@@ -106,9 +106,16 @@ class MatchesService:
         result = {
             'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             'data': {
-                'content': 'yayyy everyones ready'
+                'content': 'Yayyy everyones ready'
             }
         }
+        if match.status != MatchStatus.WAITING_READY_UP:
+            return {
+                'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                'data': {
+                    'content': 'Match not in a state to ready up anymore!'
+                }
+            }
         if match.player_id_1 == player_id:
             if match.ready_up_1 is True:
                 return already_ready_uped
