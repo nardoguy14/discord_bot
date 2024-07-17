@@ -344,6 +344,12 @@ class LeagueService():
             result = await add.delay(player_id, float(league_user.ranking), float(league.max_disparity), league.id, channel['parent_id'])
             print("did i get here or not")
             print(f"heres the answer {result}")
+            return {
+                'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                'data': {
+                    'content': f''
+                }
+            }
 
     def check_channel_allowed_for_action(self, body):
         if body['channel']['name'] != 'admin-actions':
