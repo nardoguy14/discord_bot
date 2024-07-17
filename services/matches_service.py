@@ -150,7 +150,6 @@ class MatchesService:
             }
         }
 
-
     async def save_deck(self, discord_channel_id, player_id, deck_code, body):
         match = await self.matches_repository.get_match_by_discord_id(discord_channel_id)
         if match.status != MatchStatus.WAITING_FOR_DECKS:
