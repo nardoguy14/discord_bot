@@ -342,12 +342,10 @@ class LeagueService():
             league_user = await self.user_service.get_league_user(user.discord_id, league.id)
 
             result = await add.delay(player_id, float(league_user.ranking), float(league.max_disparity), league.id, channel['parent_id'])
-            print("did i get here or not")
-            print(f"heres the answer {result}")
             return {
                 'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                 'data': {
-                    'content': f''
+                    'content': ''
                 }
             }
 
