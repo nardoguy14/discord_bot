@@ -133,16 +133,15 @@ class MatchesService:
         from celery_worker import celery, ask_for_decks
         channel_id = body['channel']['id']
         match = await self.matches_repository.get_match_by_discord_id(channel_id)
-        if match.status == MatchStatus.WAITING_FOR_DECKS or match.status != MatchStatus.GAME_FINISHED:
+        print("weeeee~")
+        if match.status == MatchStatus.WAITING_FOR_DECKS or match.status == MatchStatus.GAME_FINISHED:
             return {
                 'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                 'data': {
-                    'content': 'Can''t click this again.'
+                    'content': 'Cant click this again.'
                 }
             }
         async with celery.setup():
-
-
             await ask_for_decks.delay(channel_id)
         return {
             'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
