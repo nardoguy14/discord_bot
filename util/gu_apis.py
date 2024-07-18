@@ -33,7 +33,7 @@ def get_matches(user_id):
     params = {
         'player_won': user_id,
         'order': 'desc',
-        'game_mode': 13
+        'game_mode': 6
     }
     endpoint = "/match"
     response = requests.get(BASE_HOST + endpoint, params=params)
