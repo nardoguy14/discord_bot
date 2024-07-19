@@ -199,11 +199,18 @@ async def handle_finished_game(discord_channel_id):
     player_1: User = await users_service.get_user_by_discord_id(match.player_id_1)
     player_2: User = await users_service.get_user_by_discord_id(match.player_id_2)
     player_1_matches = get_matches(player_1.gu_user_id)
+    player_2_matches = get_matches(player_2.gu_user_id)
 
     league_user_1 = await users_service.get_league_user(player_1.discord_id, match.league_id)
     league_user_2 = await users_service.get_league_user(player_2.discord_id, match.league_id)
 
     latest_match_1 = player_1_matches['records'][0]
+    latest_match_2 = player_2_matches['records'][0]
+
+    if latest_match_2['start_time'] > latest_match_1['start_time']:
+        latest_match_1 = latest_match_2
+
+
 
     player_1_won = False
     player_2_won = False
