@@ -29,7 +29,7 @@ def get_user_rank(user: User):
             return rank["rating"]/100.0
 
 
-def get_matches(user_id, user_id2):
+def get_matches(user_id):
     params = {
         'player_won': user_id,
         'order': 'desc',

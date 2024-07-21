@@ -207,21 +207,29 @@ async def handle_finished_game(discord_channel_id):
     latest_match_1 = player_1_matches['records'][0]
     latest_match_2 = player_2_matches['records'][0]
 
+    print("the two matches results are: ")
+    pprint.pprint(latest_match_1)
+    print("and")
+    pprint.pprint(latest_match_2)
+
+    latest_match = None
     if latest_match_2['start_time'] > latest_match_1['start_time']:
-        latest_match_1 = latest_match_2
+        latest_match = latest_match_2
+    else:
+        latest_match = latest_match_1
 
 
 
     player_1_won = False
     player_2_won = False
-    if player_1.gu_user_id == str(latest_match_1['player_won']): # and \
-        #player_2.gu_user_id == latest_match_1['player_lost']:
+    if player_1.gu_user_id == str(latest_match['player_won']):
         print('player 1 won')
         player_1_won = True
-    elif player_1.gu_user_id == str(latest_match_1['player_lost']): # and \
-        # player_2.gu_user_id == latest_match_1['player_won']:
+    elif player_1.gu_user_id == str(latest_match['player_lost']):
         print('player 2 won')
         player_2_won = True
+    else:
+        print("the player won value does not align with any user")
 
     league_user_1.ranking = float(league_user_1.ranking)
     league_user_2.ranking = float(league_user_2.ranking)
