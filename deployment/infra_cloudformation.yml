@@ -98,11 +98,6 @@ Resources:
           sudo service docker start
           sudo systemctl enable docker
           docker --version
-          wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz
-          sudo tar xvzf ./ngrok-v3-stable-linux-amd64.tgz -C /usr/local/bin
-          export NGROK_TOKEN=$(aws ssm get-parameter --name /MyApp/NGROK_TOKEN --query "Parameter.Value" --with-decryption  --output text)
-          ngrok authtoken $NGROK_TOKEN
-          nohup ngrok http --domain=loved-normally-hippo.ngrok-free.app 80 > /dev/null &
 
       SecurityGroupIds:
         - !Ref EC2SecurityGroup

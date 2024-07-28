@@ -10,7 +10,7 @@ export DISCORD_GUILD_ID=$(aws ssm get-parameter --name /MyApp/DISCORD_GUILD_ID -
 export DISCORD_APPLICATION_ID=$(aws ssm get-parameter --name /MyApp/DISCORD_APPLICATION_ID --query "Parameter.Value" --with-decryption --output text)
 export DISCORD_BOT_TOKEN=$(aws ssm get-parameter --name /MyApp/DISCORD_BOT_TOKEN --query "Parameter.Value" --with-decryption --output text)
 export DISCORD_BOT_PUBLIC_KEY=$(aws ssm get-parameter --name /MyApp/DISCORD_BOT_PUBLIC_KEY --query "Parameter.Value" --with-decryption  --output text)
-
+export NGROK_TOKEN=$(aws ssm get-parameter --name /MyApp/NGROK_TOKEN --query "Parameter.Value" --with-decryption  --output text)
 export REDIS_HOST=rabbitmq
 
 export USING_FAST_API=1
@@ -50,6 +50,7 @@ sudo docker run -d --name discord_apis -p 80:8000 \
  -e DISCORD_BOT_PUBLIC_KEY=$DISCORD_BOT_PUBLIC_KEY \
  -e REDIS_HOST=$REDIS_HOST \
  -e USING_FAST_API=$USING_FAST_API \
+ -e NGROK_TOKEN=$NGROK_TOKEN \
  --network my-network \
  nardoarevalo14/twitch_leagues_bot:latest
 
