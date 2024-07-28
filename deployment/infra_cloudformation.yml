@@ -102,10 +102,7 @@ Resources:
           sudo tar xvzf ./ngrok-v3-stable-linux-amd64.tgz -C /usr/local/bin
           export NGROK_TOKEN=$(aws ssm get-parameter --name /MyApp/NGROK_TOKEN --query "Parameter.Value" --with-decryption  --output text)
           ngrok authtoken $NGROK_TOKEN
-          nohup ngrok http 80 > ngrok.log 2>&1 &
-          sleep 5
-          ngrok_url=$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')
-          aws ssm put-parameter --name /MyApp/NRGROK_URL --value "$ngrok_url" --type SecureString --overwrite
+          nohup ngrok http --domain=loved-normally-hippo.ngrok-free.app 80 > /dev/null &
 
       SecurityGroupIds:
         - !Ref EC2SecurityGroup
