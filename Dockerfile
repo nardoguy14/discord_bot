@@ -8,8 +8,7 @@ ENV NGROK_TOKEN=${NGROK_TOKEN}
 WORKDIR /
 
 
-RUN wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz; \
-    tar xvzf ./ngrok-v3-stable-linux-amd64.tgz -C /usr/local/bin;
+RUN wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz && tar xvzf ./ngrok-v3-stable-linux-amd64.tgz -C /usr/local/bin;
 
 
 COPY /domain /domain
