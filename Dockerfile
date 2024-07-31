@@ -7,11 +7,6 @@ ENV NGROK_TOKEN=${NGROK_TOKEN}
 
 WORKDIR /
 
-
-RUN wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz
-RUN tar xvzf ./ngrok-v3-stable-linux-amd64.tgz -C /usr/local/bin
-
-
 COPY /domain /domain
 COPY /repositories /repositories
 COPY /services /services
@@ -24,6 +19,8 @@ COPY gateway_bot.py /
 RUN pip install --upgrade pip \
     && pip install -r requirements.txt
 
-CMD ngrok authtoken $NGROK_TOKEN && \
+CMD wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz && \
+    sudo tar xvzf ./ngrok-v3-stable-linux-amd64.tgz -C /usr/local/bin && \
+    ngrok authtoken $NGROK_TOKEN && \
     python main.py && \
     nohup ngrok http --domain=loved-normally-hippo.ngrok-free.app 8000 > /dev/null &
