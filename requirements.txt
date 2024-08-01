@@ -7,5 +7,5 @@ discord-interactions
 uvicorn
 psycopg2-binary
 gino_starlette
-aio-celery[redis]
+aio-celery[redis]==0.10.0
 redis

@@ -132,6 +132,7 @@ async def ready_up(league_id, discord_channel_id):
     await matches_repository.set_ready(match, match.player_id_1, False)
     return
 
+
 @celery.task(name='check-for-match-completion', ignore_result=True)
 async def check_for_match_completion(discord_channel_id):
     match = await matches_repository.get_match_by_discord_id(discord_channel_id)
