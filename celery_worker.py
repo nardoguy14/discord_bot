@@ -22,9 +22,13 @@ REDIS_HOST = os.environ.get("REDIS_HOST")
 
 celery = Celery()
 
+print("setup WOUUUUU")
 celery.conf.update(
     broker_url=f"amqp://guest:guest@{REDIS_HOST}:5672/"
 )
+
+
+print("broker url")
 
 GUILD_ID = os.environ.get("DISCORD_GUILD_ID")
 everyone_role = get_role(GUILD_ID, "@everyone")

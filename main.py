@@ -22,6 +22,11 @@ matches_service = MatchesService()
 
 GUILD_ID = os.environ.get("DISCORD_GUILD_ID")
 
+@app.get("/")
+async def hello():
+    return {"Hello": "World"}
+
+
 @app.post("/api/interactions")
 @check_role()
 async def interactions(req: Request, backgorund_tasks: BackgroundTasks):
