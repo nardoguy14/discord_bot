@@ -1,11 +1,11 @@
-alembic
-discord
-requests
-fastapi
-flower
-discord-interactions
-uvicorn
-psycopg2-binary
+alembic== 1.13.1
+discord==2.3.2
+requests==2.32.2
+fastapi==fastapi
+flower==2.0.1
+discord-interactions==0.4.0
+uvicorn==0.29.0
+psycopg2-binary==2.9.9
 gino_starlette
 aio-celery[redis]==0.10.0
-redis
+redis==5.0.4
