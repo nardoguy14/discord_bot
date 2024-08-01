@@ -23,6 +23,7 @@ class DiscordMiddleware(BaseHTTPMiddleware):
         print("Processing request:", req.url)
 
         b = await req.body()
+        print(f"body {b}")
         body = json.loads(b.decode('utf-8'))
         signature = req.headers.get('X-Signature-Ed25519')
         timestamp = req.headers.get('X-Signature-Timestamp')
