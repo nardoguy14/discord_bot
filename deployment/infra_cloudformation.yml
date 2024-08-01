@@ -198,6 +198,10 @@ Resources:
           FromPort: 15672
           ToPort: 15672
           CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          CidrIp: 0.0.0.0/0
 
   CodeDeployApplication:
     Type: 'AWS::CodeDeploy::Application'
