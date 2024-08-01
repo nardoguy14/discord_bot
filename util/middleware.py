@@ -24,7 +24,11 @@ class DiscordMiddleware(BaseHTTPMiddleware):
 
         b = await req.body()
         print(f"body {b}")
-        body = json.loads(b.decode('utf-8'))
+        s = b.decode('utf-8')
+        if s == '':
+            response = await call_next(req)
+            return response
+        body = json.loads(s)
         signature = req.headers.get('X-Signature-Ed25519')
         timestamp = req.headers.get('X-Signature-Timestamp')
         skip_check = req.headers.get('X-Skip-Check', False)
