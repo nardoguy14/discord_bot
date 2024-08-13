@@ -1,7 +1,7 @@
 alembic== 1.13.1
 discord==2.3.2
 requests==2.32.2
-fastapi==fastapi
+fastapi
 flower==2.0.1
 discord-interactions==0.4.0
 uvicorn==0.29.0

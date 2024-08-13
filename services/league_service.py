@@ -347,7 +347,7 @@ class LeagueService():
                 }
             elif is_after_end_date:
                 return {
-                    'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                    fastapi==fastapi'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                     'data': {
                         'content': 'League has ended!'
                     }
