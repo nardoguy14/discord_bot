@@ -336,6 +336,22 @@ class LeagueService():
             parent_channel = get_guild_channel(GUILD_ID, channel['parent_id'])
             league = (await self.leagues_repository.get_league(parent_channel['name'].split('-')[0]))[0]
 
+            is_before_start = datetime.now() < league.start_date
+            is_after_end_date = datetime.now() > league.end_date
+            if is_before_start:
+                return {
+                    'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                    'data': {
+                        'content': 'League hasn''t started yet!'
+                    }
+                }
+            elif is_after_end_date:
+                return {
+                    'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+                    'data': {
+                        'content': 'League has ended!'
+                    }
+                }
 
             player_id = body['member']['user']['id']
             user = await self.user_service.get_user_by_discord_id(player_id)
