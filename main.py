@@ -51,6 +51,8 @@ async def interactions(req: Request, backgorund_tasks: BackgroundTasks):
             return await league_service.update_league_max_plays(body)
         elif name == 'update-league-rank-disparity':
             return await league_service.update_league_max_disparity(body)
+        elif name == 'activate-league':
+            return await league_service.activate_league(body)
         # user
         elif name == 'join-league':
             return await league_service.join_league(body)

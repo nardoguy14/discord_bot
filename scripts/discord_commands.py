@@ -185,6 +185,34 @@ UPDATE_LEAGUE_MAX_DISPARITY = {
     ]
 }
 
+ACTIVATE_LEAGUE = {
+    "name": "activate-league",
+    "type": 1,
+    "description": "Activates a league regardless of starting or end dates.",
+    "options": [
+        {
+            "name": "league-name",
+            "description": "League to activate",
+            "type": 3,
+            "required": True,
+        }
+    ]
+}
+
+DEACTIVATE_LEAGUE = {
+    "name": "deactivate-league",
+    "type": 1,
+    "description": "Deactivates a league regardless of starting or end dates.",
+    "options": [
+        {
+            "name": "league-name",
+            "description": "League to deactivate",
+            "type": 3,
+            "required": True,
+        }
+    ]
+}
+
 MATCHMAKE = {
     "name": "match-make",
     "type": 1,

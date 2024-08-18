@@ -298,6 +298,19 @@ class LeagueService():
             }
         }
 
+    async def activate_league(self, body):
+        allowed_opt = self.check_channel_allowed_for_action(body)
+        if allowed_opt:
+            return allowed_opt
+        league_name = body['data']['options'][0]['value']
+        await self.leagues_repository.update_league(league_name=league_name, is_active=True)
+        return {
+            'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            'data': {
+                'content': f'League `{league_name}` has been activated and ready for matches.'
+            }
+        }
+
     async def message_edited_league_info_to_info_channel(self, league_name):
         league = await self.leagues_repository.get_league(league_name=league_name)
         league = league[0]

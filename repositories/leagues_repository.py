@@ -24,7 +24,7 @@ class LeaguesRepository():
         return await LeagueUser.query.where(func.abs(LeagueUser.ranking - ranking) < disparity,).gino.all()
 
     async def update_league(self, league_name, start_date=None, end_date=None,
-                            new_name=None, max_plays=None, max_disparity=None):
+                            new_name=None, max_plays=None, max_disparity=None, is_active=None):
         league = (await self.get_league(league_name))[0]
         args = {}
         if start_date is not None:
@@ -37,6 +37,8 @@ class LeaguesRepository():
             args['max_plays_per_week'] = int(max_plays)
         if max_disparity is not None:
             args['max_disparity'] = float(max_disparity)
+        if is_active is not None:
+            args['is_active'] = is_active
         await league.update(**args).apply()
 
     async def delete_league(self, league_name):
