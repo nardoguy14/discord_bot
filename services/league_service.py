@@ -361,14 +361,14 @@ class LeagueService():
 
             is_before_start = datetime.now() < league.start_date
             is_after_end_date = datetime.now() > league.end_date
-            if is_before_start:
+            if is_before_start and not league.is_active:
                 return {
                     'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                     'data': {
                         'content': 'League hasn''t started yet!'
                     }
                 }
-            elif is_after_end_date:
+            elif is_after_end_date and not league.is_active:
                 return {
                     'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                     'data': {
