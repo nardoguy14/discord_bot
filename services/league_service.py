@@ -299,10 +299,10 @@ class LeagueService():
         }
 
     async def activate_league(self, body):
-        await self.set_league_status(body, True)
+        return await self.set_league_status(body, True)
 
     async def deactivate_league(self, body):
-        await self.set_league_status(body, False)
+        return await self.set_league_status(body, False)
 
     async def set_league_status(self, body, status):
         allowed_opt = self.check_channel_allowed_for_action(body)
