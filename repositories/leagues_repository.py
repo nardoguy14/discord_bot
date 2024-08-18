@@ -26,6 +26,7 @@ class LeaguesRepository():
     async def update_league(self, league_name, start_date=None, end_date=None,
                             new_name=None, max_plays=None, max_disparity=None, is_active=None):
         league = (await self.get_league(league_name))[0]
+        print(f"found league to update: {league}")
         args = {}
         if start_date is not None:
             args['start_date'] = start_date
@@ -39,6 +40,7 @@ class LeaguesRepository():
             args['max_disparity'] = float(max_disparity)
         if is_active is not None:
             args['is_active'] = is_active
+        print(f"args: {args}")
         await league.update(**args).apply()
 
     async def delete_league(self, league_name):

@@ -21,6 +21,7 @@ class League(BaseModel):
     max_plays_per_week = db.Column(db.Integer, nullable=True)
     max_disparity = db.Column(db.DECIMAL, nullable=True)
     rules = db.Column(db.Text, nullable=True)
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
 
 
 class LeagueUser(BaseModel):
