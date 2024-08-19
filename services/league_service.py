@@ -46,8 +46,8 @@ class LeagueService():
             end_date = body['data']['options'][3]['value']
             max_plays_per_week = body['data']['options'][4]['value']
             max_disparity = body['data']['options'][5]['value']
-            await self.user_service.add_user_role(GUILD_ID, f"{name}-participaant", "1024")
-            league_role = await self.user_service.get_role(f"{name}-participaant")
+            await self.user_service.add_user_role(GUILD_ID, f"{name}-participant", "1024")
+            league_role = await self.user_service.get_role(f"{name}-participant")
             generic_permissions = [
                 {'id': EVERYONE_ROLE['id'], 'type': 0, 'deny': "1024"},
                 {'id': HOMIE_USERS['id'], 'type': 0, 'allow': "1024"},
@@ -310,7 +310,7 @@ class LeagueService():
         league_name = body['data']['options'][0]['value']
         league = await self.leagues_repository.get_league(league_name)
         league_users = await self.user_service.get_league_users(league.id)
-        role = await self.user_service.get_role(f"{league_name}-role")
+        role = await self.user_service.get_role(f"{league_name}-participant")
         for user in league_users:
             add_guild_role_to_member(GUILD_ID, user.user_id, role.role_id)
         return await self.set_league_status(body, True)
@@ -319,7 +319,7 @@ class LeagueService():
         league_name = body['data']['options'][0]['value']
         league = await self.leagues_repository.get_league(league_name)
         league_users = await self.user_service.get_league_users(league.id)
-        role = await self.user_service.get_role(f"{league_name}-role")
+        role = await self.user_service.get_role(f"{league_name}-participant")
         for user in league_users:
             delete_guild_role_to_member(GUILD_ID, user.user_id, role.role_id)
         return await self.set_league_status(body, False)
