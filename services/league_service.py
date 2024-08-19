@@ -309,7 +309,7 @@ class LeagueService():
     async def activate_league(self, body):
         league_name = body['data']['options'][0]['value']
         league = await self.leagues_repository.get_league(league_name)
-        league_users = await self.user_service.get_league_users(league.id)
+        league_users = await self.user_service.get_league_users(league[0].id)
         role = await self.user_service.get_role(f"{league_name}-participant")
         for user in league_users:
             add_guild_role_to_member(GUILD_ID, user.user_id, role.role_id)
@@ -318,7 +318,7 @@ class LeagueService():
     async def deactivate_league(self, body):
         league_name = body['data']['options'][0]['value']
         league = await self.leagues_repository.get_league(league_name)
-        league_users = await self.user_service.get_league_users(league.id)
+        league_users = await self.user_service.get_league_users(league[0].id)
         role = await self.user_service.get_role(f"{league_name}-participant")
         for user in league_users:
             delete_guild_role_to_member(GUILD_ID, user.user_id, role.role_id)
