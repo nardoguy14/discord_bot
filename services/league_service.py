@@ -11,7 +11,7 @@ from repositories.leagues_repository import LeaguesRepository
 from services.matches_service import MatchesService
 from services.user_service import UserService
 from util.discord_apis import delete_channel, send_deferred_final_message, modify_channel, edit_message, \
-    get_child_league_channel
+    get_child_league_channel, add_guild_role, add_guild_role_to_member, delete_guild_role_to_member
 from util.discord_apis import get_role, create_channel, get_guild_channel_by_name, create_message, get_guild_channel, \
     get_guild_channels, get_channel_messages
 from util.gu_apis import get_user_rank
@@ -46,16 +46,24 @@ class LeagueService():
             end_date = body['data']['options'][3]['value']
             max_plays_per_week = body['data']['options'][4]['value']
             max_disparity = body['data']['options'][5]['value']
-            permissions = [
+            await self.user_service.add_user_role(GUILD_ID, f"{name}-participaant", "1024")
+            league_role = await self.user_service.get_role(f"{name}-participaant")
+            generic_permissions = [
                 {'id': EVERYONE_ROLE['id'], 'type': 0, 'deny': "1024"},
                 {'id': HOMIE_USERS['id'], 'type': 0, 'allow': "1024"},
             ]
-            category_channel = create_channel(GUILD_ID, f"{name}-League", permissions, guild_type=4, category=True)
+            active_league_permissions = [
+                {'id': EVERYONE_ROLE['id'], 'type': 0, 'deny': "1024"},
+                {'id': league_role.role_id, 'type': 0, 'allow': "1024"},
+            ]
+            category_channel = create_channel(GUILD_ID, f"{name}-League", generic_permissions, guild_type=4, category=True)
 
-            info_channel = create_channel(GUILD_ID, "Info", permissions, parent_id=category_channel['id'])
-            create_channel(GUILD_ID, "General Chat", permissions, parent_id=category_channel['id'])
-            create_channel(GUILD_ID, "Standings", permissions, parent_id=category_channel['id'])
-            create_channel(GUILD_ID, "Matchmaking", permissions, parent_id=category_channel['id'])
+            info_channel = create_channel(GUILD_ID, "Info", generic_permissions, parent_id=category_channel['id'])
+            create_channel(GUILD_ID, "General Chat", generic_permissions, parent_id=category_channel['id'])
+            create_channel(GUILD_ID, "Standings", active_league_permissions, parent_id=category_channel['id'])
+            create_channel(GUILD_ID, "Matchmaking", active_league_permissions, parent_id=category_channel['id'])
+
+
 
             announcement_message = f"""New league `{name}` \nkind: `{kind}`\nstarts `{start_date}`\nends `{end_date}`\nmax plays of `{max_plays_per_week}` per week."""
             info_message = self.generate_league_info_string(name, kind, start_date, end_date, max_plays_per_week)
@@ -299,9 +307,21 @@ class LeagueService():
         }
 
     async def activate_league(self, body):
+        league_name = body['data']['options'][0]['value']
+        league = await self.leagues_repository.get_league(league_name)
+        league_users = await self.user_service.get_league_users(league.id)
+        role = await self.user_service.get_role(f"{league_name}-role")
+        for user in league_users:
+            add_guild_role_to_member(GUILD_ID, user.user_id, role.role_id)
         return await self.set_league_status(body, True)
 
     async def deactivate_league(self, body):
+        league_name = body['data']['options'][0]['value']
+        league = await self.leagues_repository.get_league(league_name)
+        league_users = await self.user_service.get_league_users(league.id)
+        role = await self.user_service.get_role(f"{league_name}-role")
+        for user in league_users:
+            delete_guild_role_to_member(GUILD_ID, user.user_id, role.role_id)
         return await self.set_league_status(body, False)
 
     async def set_league_status(self, body, status):

@@ -35,6 +35,14 @@ def add_guild_role_to_member(guild_id, member_id, role_id):
     response = requests.put(full_url, headers=headers)
     return response
 
+def delete_guild_role_to_member(guild_id, member_id, role_id):
+    endpoint = f"/guilds/{guild_id}/members/{member_id}/roles/{role_id}"
+    full_url = f"{DISCORD_HOST}{endpoint}"
+    headers = {
+        'Authorization': f'Bot {BOT_TOKEN}'
+    }
+    response = requests.delete(full_url, headers=headers)
+    return response
 
 def add_to_secret_channel(guild_id, channel_id, user_id):
     headers = {
