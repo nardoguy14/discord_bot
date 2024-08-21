@@ -404,7 +404,7 @@ class LeagueService():
             return {
                 'type': InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
                 'data': {
-                    'content': ''
+                    'content': f'Player {user.gu_user_name} looking for match! '
                 }
             }
 
