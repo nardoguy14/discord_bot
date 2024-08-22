@@ -101,6 +101,13 @@ def get_required_role(command_name):
     commands = {
         "register": [],
         "create-league": [Role.HOMIE_ADMIN.name],
+        "delete-league": [Role.HOMIE_ADMIN.name],
+        "update-league-dates": [Role.HOMIE_ADMIN.name],
+        "update-league-name": [Role.HOMIE_ADMIN.name],
+        "update-league-max-plays": [Role.HOMIE_ADMIN.name],
+        "update-league-rank-disparity": [Role.HOMIE_ADMIN.name],
+        "activate-league": [Role.HOMIE_ADMIN.name],
+        "deactivate-league": [Role.HOMIE_ADMIN.name],
         "join-league": [Role.HOMIE_USERS.name],
         "submit-deck": [Role.HOMIE_USERS.name],
         "READY_UP": [Role.HOMIE_USERS.name],
