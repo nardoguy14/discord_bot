@@ -30,7 +30,7 @@ class LeagueService():
     matches_service = MatchesService()
 
     def generate_league_info_string(self, name, kind, start_date, end_date, max_plays_per_week):
-        info_message = f"League ayk is the best`{name}` \nkind: `{kind}`\nstarts `{start_date}`\nends `{end_date}`\nmax plays of `{max_plays_per_week}` per week."
+        info_message = f"League `{name}` \nkind: `{kind}`\nstarts `{start_date}`\nends `{end_date}`\nmax plays of `{max_plays_per_week}` per week."
         return info_message
 
     async def create_league_interaction(self, body, background_tasks):
